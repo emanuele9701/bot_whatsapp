@@ -209,7 +209,7 @@ client.on('message', async msg => {
                     result_store = true;
                     client.sendMessage(msg.from, "Risposta inviata");
                 } catch (error) {
-                    if(!result_store) {
+                    if (!result_store) {
                         // Risposta non inviata
                         console.log(error);
                     }
@@ -294,6 +294,19 @@ client.on('message', async msg => {
                     var un_archive = await chat.archive();
                 }
                 client.sendMessage(msg.from, 'Richiesta terminata');
+            } else if (msg.body == "new_chat") {
+                new_chat = [];
+                for (let idx = 0; idx < all_chat.length; idx++) {
+                    const element = all_chat[idx];
+                    var date_chat = new Date(element.timestamp * 1000);
+                    var date_min = new Date("2022-05-03 00:00:00");
+                    var date_max = new Date();
+                    if (date_chat >= date_min && date_chat <= date_max) {
+                        new_chat.push(element.name);
+                    }
+                }
+                var rs = await post_request('new_chat', { numeri: new_chat });
+                client.sendMessage(msg.from,rs.data);
             } else {
                 client.sendMessage(msg.from, 'Impossibile elaborare la richiesta');
             }

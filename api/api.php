@@ -9,6 +9,25 @@ if (!$action) {
 }
 
 switch ($action) {
+    case 'new_chat':
+        $tbl_new_nums = new Table($conn,"tmp_nums");
+        $result = [];
+        $result['esito'] = null; 
+        $result['msg'] = []; 
+        $new_chat = explode(",",$_POST['numeri']);
+        foreach ($new_chat as $key => $value) {
+            if(strpos($value,'+39 ') !== false) {
+                // Numero non salvato
+                try {
+                    $tbl_new_nums->insert(['numero' => str_replace(["+39"," "],"",$value)]);
+                } catch (PDOException $pdo) {
+                    $result['esito'] = true;
+                    $result['msg'][] = "$value: ".$pdo->getMessage()."\n";
+                }
+            }
+        }
+        echo json_encode($result);
+        break;
     case 'store_message':
         $message = $_POST;
         $to_insert = [
