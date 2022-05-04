@@ -44,7 +44,7 @@ client.on('authenticated', () => {
 });
 
 
-client.on('ready', async() => {
+client.on('ready', async () => {
     console.log('Load chats');
     // Load all chat
     all_chat = await client.getChats();
@@ -313,17 +313,21 @@ client.on('message', async msg => {
         }
     } else {
         // salvo il msg in db
-        var msg_body = Buffer.from(msg.body, 'utf-8');
-        var result = await post_request("store_message", { from: msg.from, body: msg_body.toString('base64') })
-        var string = "";
-        if (result.data.esito == true) {
-            string = "Nuovo messaggio da: " + msg.from;
-            string += "\nId Messaggio: " + result.data.id_msg;
-            string += "Per rispondere al messaggio scrivere: \nanswer: <Id Messaggio>\nmessage: <testo_messaggio>";
-        } else {
-            string += "Hai un nuovo messaggio, ma non è possibile rispondere da questa chat";
+        if (msg.body != undefined) {
+
+            var msg_body = Buffer.from(msg.body, 'utf-8');
+            var result = await post_request("store_message", { from: msg.from, body: msg_body.toString('base64') })
+            var string = "";
+            if (result.data.esito == true) {
+                string = "Nuovo messaggio da: " + msg.from;
+                string += "\nId Messaggio: " + result.data.id_msg;
+                string += "\nTesto Messaggio: " + msg.body;
+                string += "\nPer rispondere al messaggio scrivere: \nanswer: <Id Messaggio>\nmessage: <testo_messaggio>";
+            } else {
+                string += "Hai un nuovo messaggio, ma non è possibile rispondere da questa chat";
+            }
+            client.sendMessage("393348261327@c.us", string);
         }
-        client.sendMessage("393348261327@c.us", string);
     }
 
 });
