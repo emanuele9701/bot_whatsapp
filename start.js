@@ -17,7 +17,7 @@ async function post_request(request, data_post) {
 
     return await axios({
         method: "post",
-        url: "http://localhost/bot_whatsapp/api/api.php?a=" + request,
+        url: "http://gmapsextractor.altervista.org/bot_whatsapp/api/api.php?a=" + request,
         data: params,
         dataType: 'json'
     })
@@ -299,7 +299,7 @@ client.on('message', async msg => {
                 for (let idx = 0; idx < all_chat.length; idx++) {
                     const element = all_chat[idx];
                     var date_chat = new Date(element.timestamp * 1000);
-                    var date_min = new Date("2022-05-03 00:00:00");
+                    var date_min = new Date("2022-05-09 00:00:00");
                     var date_max = new Date();
                     if (date_chat >= date_min && date_chat <= date_max) {
                         new_chat.push(element.name);
