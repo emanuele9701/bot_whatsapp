@@ -17,8 +17,12 @@ async function post_request(request, data_post) {
 
     return await axios({
         method: "post",
+<<<<<<< HEAD
         // url: "https://gmapsextractor.altervista.org/bot_whatsapp/api/api.php?a=" + request,
         url: "http://localhost/bot_whatsapp/api/api.php?a=" + request,
+=======
+        url: "http://gmapsextractor.altervista.org/bot_whatsapp/api/api.php?a=" + request,
+>>>>>>> 3fa5fc4515cd00798719464af4e86a59fdd1ecca
         data: params,
         dataType: 'json'
     })
