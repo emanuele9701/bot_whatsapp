@@ -126,14 +126,75 @@ switch ($action) {
                     'stream' => $streamImage,
                     'timestams' => $timestamps
                 ];
-   
+
                 $idIma = $tbIma->insert($toInsertImage);
             }
         }
         echo json_encode(['esito' => true, 'id' => $ans, 'img_id' => $idIma]);
 
         break;
-    default:
+    case 'save_chat':
+        $chats = json_decode($_POST['chats'], true);
+        $return = [];
+        foreach ($chats as $chat) {
+            # code...
+            try {
+                $tblChat = new Table($conn, "chats");
+                $check = $tblChat->select("WHERE chat_id = ?", null, [$chat['chat_id']]);
+                if (empty($check)) {
+                    // Inserisce chat
+                    $tblChat->insert($chat);
+                    $return[] = ['esito' => true, 'msg' => "Aggiunta con successo"];
+                } else {
+                    $return[] = ['esito' => true, 'msg' => "Esiste già"];
+                }
+            } catch (PDOException $e) {
+                $return[] = ['esito' => true, 'msg' => $e->getMessage()];
+            }
+        }
+        break;
+    case 'storeMessage':
+        $msges = json_decode($_POST['dati'],true);
+        $tbMex = new Table($conn,"messaggi");
+        $tbChat = new Table($conn,"chats");
+        $tbMedia = new Table($conn,"media_from_message");
+
+        foreach ($msges as $key => $dati) {
+            $idChat = $dati['chat_id'];
+            if(empty($tbChat->select("WHERE chat_id = ?",null,[$idChat]))) {
+                continue;
+            }
+            $messaggi = $dati['messaggi'];
+            $immagini = $dati['images'];
+
+            foreach ($messaggi as $messaggio) {
+                $toStore = [
+                    'chat_id' => $idChat,
+                    'message_id' => $messaggio['message_id'],
+                    'msg_from' => $messaggio['from'],
+                    'media' => $messaggio['media'],
+                    'timestamps' => $messaggio['timestamp'],
+                    'ack' => $messaggio['ack'],
+                    'body' => $messaggio['body'],
+                ];
+                $tbMex->insert($toStore);
+            }
+            
+            foreach ($immagini as $immagine) {
+                $toStore = [
+                    'message_id' => $immagine['message_id'],
+                    'media_key' => $immagine['mediaKey'],
+                    'mimetype' => $immagine['mimetype'],
+                    'type' => $immagine['type'],
+                    'size' => $immagine['size'],
+                    'stream' => $immagine['body'],
+                    'timestams' => $immagine['timestamp'],
+                ];
+                $tbMedia->insert($toStore);
+            }
+        }
+        break;
+        default:
         echo json_encode(['esito' => false, 'msg' => "Action is not exist"]);
         break;
 }
