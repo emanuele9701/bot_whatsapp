@@ -17,12 +17,8 @@ async function post_request(request, data_post) {
 
     return await axios({
         method: "post",
-<<<<<<< HEAD
         // url: "https://gmapsextractor.altervista.org/bot_whatsapp/api/api.php?a=" + request,
         url: "http://localhost/bot_whatsapp/api/api.php?a=" + request,
-=======
-        url: "http://gmapsextractor.altervista.org/bot_whatsapp/api/api.php?a=" + request,
->>>>>>> 3fa5fc4515cd00798719464af4e86a59fdd1ecca
         data: params,
         dataType: 'json'
     })
@@ -388,52 +384,4 @@ client.on('message', async msg => {
     });
     console.log(result);
 })
-
-function get_info_answer(body) {
-    var suddivisione = body.split('\n');
-    var id_messaggio_raw = suddivisione[0].replace('answer:', '').trim();
-    var testo_messaggio_raw = suddivisione[1].replace('message:', '').trim();
-
-    return { id_msg: id_messaggio_raw, body: testo_messaggio_raw };
-}
-
-function delete_conctat_from_list_chat(lista_chat) {
-    var my_chats = [];
-
-    for (let i = 0; i < lista_chat.length; i++) {
-        const element = lista_chat[i];
-        if (element.name == "Emanuele Lucchese") {
-            continue;
-        }
-        my_chats.push(element);
-    }
-
-    return my_chats;
-
-}
-
-async function get_non_interessati(lista_chat) {
-    var non_interessati = [];
-
-    for (let i = 0; i < lista_chat.length; i++) {
-        var chat = lista_chat[i];
-        var messages = await chat.fetchMessages();
-
-        if (messages.length == 0) {
-            continue;
-        }
-        if (messages[0].hasMedia == true && messages[0].fromMe == false) {
-            continue;
-        }
-        if (messages[0].type == 'chat') {
-            var body_mex = messages[0].body;
-            body_mex = body_mex.toLowerCase();
-            if (body_mex.indexOf("buona giornata") >= 0) {
-                non_interessati.push(messages[0].id);
-            }
-        }
-    }
-    return non_interessati;
-}
-
 // Procedi a filtrare le chat per archiviazione per mancata risposta - oppure filtra per dissenso all'offerta*/
