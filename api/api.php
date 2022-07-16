@@ -7,7 +7,7 @@ if (!$action) {
     echo json_encode(['esito' => false, 'msg' => "No action"]);
     die;
 }
-file_put_contents("file.json", json_encode($_POST));
+// file_put_contents("file.json", json_encode($_POST));
 switch ($action) {
     case 'new_chat':
         $tbl_new_nums = new Table($conn, "tmp_nums");
@@ -187,7 +187,7 @@ switch ($action) {
                     'mimetype' => $immagine['mimetype'],
                     'type' => $immagine['type'],
                     'size' => $immagine['size'],
-                    'stream' => $immagine['body'],
+                    'stream' => base64_decode($immagine['body']),
                     'timestams' => $immagine['timestamp'],
                 ];
                 $tbMedia->insert($toStore);
