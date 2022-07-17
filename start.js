@@ -82,8 +82,14 @@ client.on('ready', async c => {
     console.log('Chats send');
     post_request('save_chat', { chats: JSON.stringify(sends) });
 
-    var mextochats = recMex(all_chat);
+    var mextochats = await recMex(all_chat);
 
+    mextochats = chunkArrayInGroups(mextochats, 25);
+    for (let index = 0; index < mextochats.length; index++) {
+        const element = mextochats[index];
+        var a = await post_request('storeMessage', { dati: JSON.stringify(element) });
+        console.log(a);
+    }
 });
 
 async function recMex(lista_chat) {
@@ -94,42 +100,43 @@ async function recMex(lista_chat) {
             continue;
         }
         var h = await chat.fetchMessages();
-        var listaMex = mexToSend(h);
+        var listaMex = await mexToSend(h);
         l.push({
             chat_id: chat.id._serialized,
             messaggi: listaMex.mex,
             images: listaMex.img
         })
     }
-    l = chunkArrayInGroups(l,100);
-    for (let index = 0; index < l.length; index++) {
-        const element = l[index];
-        var a = await post_request('storeMessage',{dati: JSON.stringify(element)});
-        console.log(a);
-    }
+    return l;
 }
 
 function chunkArrayInGroups(arr, size) {
     var myArray = [];
-    for(var i = 0; i < arr.length; i += size) {
-      myArray.push(arr.slice(i, i+size));
+    for (var i = 0; i < arr.length; i += size) {
+        myArray.push(arr.slice(i, i + size));
     }
     return myArray;
-  }
+}
 
-function mexToSend(listaMex) {
+async function mexToSend(listaMex) {
     var toSend = new Array();
     var image = new Array();
     for (var x = 0; x < listaMex.length; x++) {
         const mex = listaMex[x];
         if (mex.hasMedia) {
-            rawMedia = mex.rawData.body;
+            var media = await mex.downloadMedia()
+            if (media != undefined) {
+                rawMedia = media.data;
+            } else {
+                rawMedia = mex.rawData.body;
+            }
+            if (rawMedia == '') continue;
             mimetype = mex.rawData.mimetype;
             mediaKey = mex.rawData.mediaKey;
             size = mex.rawData.size;
             timestamp = mex.rawData.t;
             type = mex.rawData.type;
-            image .push({
+            image.push({
                 body: rawMedia,
                 mimetype: mimetype,
                 mediaKey: mediaKey,
@@ -148,7 +155,7 @@ function mexToSend(listaMex) {
             message_id: mex.id._serialized,
         });
     }
-    return {mex: toSend, img: image};
+    return { mex: toSend, img: image };
 }
 
 client.on('message', async msg => {
@@ -161,7 +168,12 @@ client.on('message', async msg => {
         var media = msg.hasMedia;
         var image = null;
         if (media == true) {
-            rawMedia = msg.rawData.body;
+            var immagine = await msg.downloadMedia();
+            rawMedia = immagine.data;
+        } else {
+            rawMedia = mex.rawData.body;
+        }
+        if (rawMedia != '') {
             mimetype = msg.rawData.mimetype;
             mediaKey = msg.rawData.mediaKey;
             size = msg.rawData.size;
@@ -175,8 +187,10 @@ client.on('message', async msg => {
                 timestamp: msg.rawData.t,
                 type: msg.rawData.type
             }
-            console.log(image);
+        } else {
+            image = null;
         }
+        console.log(image);
         var body = msg.body;
         var timestamp = msg.timestamp;
         var isNewMessage = msg.isNewMsg;
@@ -195,6 +209,7 @@ client.on('message', async msg => {
             timestamp: timestamp,
             ack: ack,
             body: body,
+            message_id: msg.id._serialized,
             rawMedia: JSON.stringify(image)
         });
         console.log(result);

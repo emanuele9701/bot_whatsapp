@@ -7,7 +7,7 @@ if (!$action) {
     echo json_encode(['esito' => false, 'msg' => "No action"]);
     die;
 }
-// file_put_contents("file.json", json_encode($_POST));
+file_put_contents("file.json", json_encode($_POST));
 switch ($action) {
     case 'new_chat':
         $tbl_new_nums = new Table($conn, "tmp_nums");
@@ -100,6 +100,7 @@ switch ($action) {
             'media' => $_POST['media'],
             'timestamps' => $_POST['timestamp'],
             'body' => $_POST['body'],
+            'message_id' => $_POST['message_id'],
             'ack' => $_POST['ack']
         ];
 
@@ -108,9 +109,9 @@ switch ($action) {
         $ans = $tbMsg->insert($toInsert);
         if ($_POST['media'] != "false" && $_POST['media'] != false) {
             // Rintraccio il media
+            $_POST['rawMedia'] = json_decode($_POST['rawMedia'], true);
             if (empty($tbIma->select("WHERE media_key = ?", null, [$_POST['rawMedia']['mediaKey']]))) {
 
-                $_POST['rawMedia'] = json_decode($_POST['rawMedia'], true);
                 $streamImage = $_POST['rawMedia']['body']; // Base 64 encode
                 $mimetype = $_POST['rawMedia']['mimetype'];
                 $size = $_POST['rawMedia']['size'];
@@ -128,6 +129,8 @@ switch ($action) {
                 ];
 
                 $idIma = $tbIma->insert($toInsertImage);
+            } else {
+                $idIma = false;
             }
         }
         echo json_encode(['esito' => true, 'id' => $ans, 'img_id' => $idIma]);
