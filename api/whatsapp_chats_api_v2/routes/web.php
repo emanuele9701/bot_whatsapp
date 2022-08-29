@@ -26,5 +26,6 @@ $router->group(['prefix' => 'chats'], function () use ($router) {
     $router->group(['prefix' => 'messages'], function () use ($router) {
         $router->post('insertNewMessage','ChatMessagesController@insertNewMessage');
         $router->get('getMessageImage','ChatMessagesController@getMessageImage');
+        $router->post('saveImageMessage','ChatMessagesController@saveMessageImage');
     });
 });

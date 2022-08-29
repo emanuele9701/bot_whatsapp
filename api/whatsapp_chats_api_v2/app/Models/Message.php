@@ -31,7 +31,7 @@ class Message extends Model
     }
 
     public static function getImageMessages() {
-        return DB::table('chat_messages')->where('hasMedia', '=',1)->get('message_id')->toArray();
+        return DB::table('chat_messages')->where('hasMedia', '=',1)->get(['chats_id','message_id'])->toArray();
     }
 
     public static function insert($message)
@@ -46,4 +46,5 @@ class Message extends Model
 
         return DB::table('chat_messages')->insert($message);
     }
+
 }

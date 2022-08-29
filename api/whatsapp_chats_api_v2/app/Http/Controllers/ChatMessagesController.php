@@ -47,4 +47,9 @@ class ChatMessagesController extends Controller
         $idMessaggi = Message::getImageMessages();
         return $idMessaggi;
     }
+
+    public function saveMessageImage(Request $request) {
+        $imagesMessages = base64_decode($request->input('data'));
+        var_dump($imagesMessages);
+    }
 }
