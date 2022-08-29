@@ -1,6 +1,6 @@
 const { Client, Location, List, Buttons, LocalAuth, Message } = require('./node_modules/whatsapp-web.js/index');
 const axios = require("axios/index.js");
-
+const url = url + "";
 async function post_request(url_request, data_post) {
 
     const params = new URLSearchParams();
@@ -65,7 +65,7 @@ async function sincronizza_chat(chats) {
     let data = JSON.stringify(arrToSend);
     let buff = new Buffer(data);
     let base64data = buff.toString('base64');
-    var g = await post_request('http://localhost/whatsapp_chats/api/whatsapp_chats_api/public/index.php/chats/checkChats', { chats: base64data }).then(function(ok) {
+    var g = await post_request(url + '/chats/checkChats', { chats: base64data }).then(function(ok) {
         var response = ok.data;
         response.forEach(chat_response => {
             client.getChatById(chat_response.chat)
@@ -86,9 +86,9 @@ async function sincronizza_chat(chats) {
                         let data = JSON.stringify(listMessage);
                         let buff = new Buffer(data);
                         let base64data = buff.toString('base64');
-                        post_request("http://localhost/whatsapp_chats/api/whatsapp_chats_api/public/index.php/chats/messages/insertNewMessage", { message: base64data }).catch(function (err) {
+                        post_request(url + "/chats/messages/insertNewMessage", { message: base64data }).catch(function(err) {
                             console.log(err);
-                        }).then(function (ok) {
+                        }).then(function(ok) {
                             console.log("Successo");
                         });
                     });
@@ -104,7 +104,7 @@ async function sincronizza_chat(chats) {
 
 
 client.on('message', async msg => {
-    
+
     var msg = {
         fromMe: msg.fromMe,
         chats_id: msg.from,
@@ -117,9 +117,9 @@ client.on('message', async msg => {
     let data = JSON.stringify(msg);
     let buff = new Buffer(data);
     let base64data = buff.toString('base64');
-    post_request("http://localhost/whatsapp_chats/api/whatsapp_chats_api/public/index.php/chats/messages/insertNewMessage", { message: base64data }).catch(function (err) {
-        console.log("Errore",err);
-    }).then(function (ok) {
+    post_request(url + "/chats/messages/insertNewMessage", { message: base64data }).catch(function(err) {
+        console.log("Errore", err);
+    }).then(function(ok) {
         console.log("Successo");
     });
 });
