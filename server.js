@@ -102,6 +102,9 @@ async function sincronizza_chat(chats) {
     });
 }
 
+async function downloadImages() {
+    
+}
 
 client.on('message', async msg => {
 

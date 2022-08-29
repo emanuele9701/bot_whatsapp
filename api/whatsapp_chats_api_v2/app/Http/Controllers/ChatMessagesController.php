@@ -38,4 +38,13 @@ class ChatMessagesController extends Controller
         }
         return ['esito' => true, 'msg' => 'Ok'];
     }
+
+
+    /**
+     * Ritorna i messaggi che contengono un immagine
+     */
+    public function getMessageImage() {
+        $idMessaggi = Message::getImageMessages();
+        return $idMessaggi;
+    }
 }

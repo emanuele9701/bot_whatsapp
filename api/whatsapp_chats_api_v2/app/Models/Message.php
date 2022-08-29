@@ -30,6 +30,10 @@ class Message extends Model
         }
     }
 
+    public static function getImageMessages() {
+        return DB::table('chat_messages')->where('hasMedia', '=',1)->get('message_id')->toArray();
+    }
+
     public static function insert($message)
     {
         // Controllo se esiste la chat
@@ -39,7 +43,7 @@ class Message extends Model
         } else {
             Chat::updateFromChatId($message['chats_id'],['hasNewMex' => isset($chat['hasNewMex']) ? $chat['hasNewMex'] : 0]);
         }
-        
+
         return DB::table('chat_messages')->insert($message);
     }
 }
