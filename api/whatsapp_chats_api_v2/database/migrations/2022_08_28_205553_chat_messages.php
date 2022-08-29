@@ -22,6 +22,7 @@ class ChatMessages extends Migration
             $table->integer("timestamp_message");
             $table->boolean("fromMe")->default(0);
             $table->boolean("hasMedia")->default(0);
+            $table->tinyInteger("hasNewMex")->default(0);
             $table->index('chats_id','idChat');
             $table->foreign('chats_id')->references('chats_id')->on('chats');
         });

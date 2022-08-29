@@ -26,4 +26,6 @@ class Chat extends Model
     public static function updateFromChatId($chat_id,$values) {
         return DB::table('chats')->where('chats_id','=',$chat_id)->update($values);
     }
+
+    
 }

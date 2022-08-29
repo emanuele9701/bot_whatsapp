@@ -111,7 +111,8 @@ client.on('message', async msg => {
         body: msg.body,
         timestamp_message: msg.timestamp,
         hasMedia: msg.hasMedia,
-        message_id: msg.id._serialized
+        message_id: msg.id._serialized,
+        hasNewMex: 1
     }
     let data = JSON.stringify(msg);
     let buff = new Buffer(data);
