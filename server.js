@@ -110,7 +110,7 @@ async function downloadImages() {
     var messageId = await request(url + "/chats/messages/getMessageImage", {}, 'get').then(function(ok) {
         return ok.data;
     }).catch(function(e) {
-        console.log("Errore", e.arg1.response.message);
+        console.log("Errore downlaod image");
         return null;
     })
     console.log("Recuperati: "+messageId.length);
