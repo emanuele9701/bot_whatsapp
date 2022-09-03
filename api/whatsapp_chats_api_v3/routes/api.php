@@ -14,10 +14,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+
+Route::get("/ping", function () use ($router) {
+    return ["Ping ok"];
 });
 
-Route::get('/',function (Request $r) {
-    return ['ciao'];
+Route::group(['prefix' => 'chats'], function () use ($router) {
+    Route::post('checkChats', [ChatsController::class,'checkChats']);
+    Route::group(['prefix' => 'messages'], function () use ($router) {
+        Route::post('insertNewMessage',[ChatMessagesController::class,'insertNewMessage']);
+        Route::get('getMessageImage',[ChatMessagesController::class,'getMessageImage']);
+        Route::post('saveImageMessage',[ChatMessagesController::class,'saveMessageImage']);
+    });
 });

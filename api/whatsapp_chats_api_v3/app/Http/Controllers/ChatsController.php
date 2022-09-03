@@ -4,8 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Chat;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controller as BaseController;
 
-class ChatsController extends Controller
+class ChatsController extends BaseController
 {
     /**
      * Create a new controller instance.

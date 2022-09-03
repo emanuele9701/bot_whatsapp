@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Chat;
 use App\Models\Message;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Routing\Controller as BaseController;
 
-class ChatMessagesController extends Controller
+class ChatMessagesController extends BaseController
 {
     /**
      * Create a new controller instance.

@@ -2,6 +2,8 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
+use App\Http\Controllers\ChatsController;
+use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -14,18 +16,6 @@
 */
 
 $router->get('/', function () use ($router) {
-    return 'ciao';
+    return view('home');
 });
 
-$router->get("/ping", function () use ($router) {
-    return "Ping ok";
-});
-
-$router->group(['prefix' => 'chats'], function () use ($router) {
-    $router->post('checkChats', 'ChatsController@checkChats');
-    $router->group(['prefix' => 'messages'], function () use ($router) {
-        $router->post('insertNewMessage','ChatMessagesController@insertNewMessage');
-        $router->get('getMessageImage','ChatMessagesController@getMessageImage');
-        $router->post('saveImageMessage','ChatMessagesController@saveMessageImage');
-    });
-});
