@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChatMessagesController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,7 @@ Route::group(['prefix' => 'chats'], function () use ($router) {
     Route::group(['prefix' => 'messages'], function () use ($router) {
         Route::post('insertNewMessage',[ChatMessagesController::class,'insertNewMessage']);
         Route::get('getMessageImage',[ChatMessagesController::class,'getMessageImage']);
+        Route::get('all/{idChat}',[ChatMessagesController::class,'all']);
         Route::post('saveImageMessage',[ChatMessagesController::class,'saveMessageImage']);
     });
 });

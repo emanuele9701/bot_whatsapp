@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Chat;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
@@ -15,6 +16,11 @@ class ChatMessagesController extends BaseController
      */
     public function __construct()
     {
+    }
+
+    public function all($idChat) {
+        $allMex = Chat::getChatsLastMessagge($idChat);
+        return $allMex;
     }
 
     public function insertNewMessage(Request $request)
