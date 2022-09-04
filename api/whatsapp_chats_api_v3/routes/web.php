@@ -3,6 +3,7 @@
 /** @var \Laravel\Lumen\Routing\Router $router */
 
 use App\Http\Controllers\ChatsController;
+use App\Models\Chat;
 use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +17,10 @@ use Illuminate\Support\Facades\Route;
 */
 
 $router->get('/', function () use ($router) {
-    return view('home');
+    // Recupero le chat
+    $chat = Chat::getChatsLastMessagge();
+    return view('home',[
+        'messageList' => $chat
+    ]);
 });
 

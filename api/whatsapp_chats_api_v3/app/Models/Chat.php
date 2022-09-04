@@ -27,5 +27,11 @@ class Chat extends Model
         return DB::table('chats')->where('chats_id','=',$chat_id)->update($values);
     }
 
-    
+    /**
+     * Restituisce la chat con l'ultimo messaggio
+     */
+    public static function getChatsLastMessagge() {
+        $mx = DB::table('chats','c')->join('chat_messages','chat_messages.chats_id','=','c.chats_id')->orderBy('c.updated_at','desc')->orderBy('chat_messages.id','desc')->get(['c.name','body','c.chats_id','c.id','c.updated_at','timestamp_message']);
+        return $mx;
+    }
 }
