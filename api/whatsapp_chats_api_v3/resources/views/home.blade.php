@@ -31,6 +31,7 @@
                 overflow-x: hidden;
                 -webkit-overflow-scrolling: touch;">
                     @foreach ($messageList as $message)
+                    {{-- @dump($message)  --}}
                         <a class="list-group-item list-group-item-action flex-column align-items-start"
                             onclick="openChat({{ $message->id }})">
                             <div class="d-flex w-100 justify-content-between">

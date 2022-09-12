@@ -1,6 +1,7 @@
 const { Client, Location, List, Buttons, LocalAuth, Message } = require('./node_modules/whatsapp-web.js/index');
 const axios = require("axios/index.js");
-const url = "http://localhost/whatsapp_chats/api/whatsapp_chats_api_v2/public/index.php";
+const url = "http://localhost/whatsapp_chats/api/whatsapp_chats_api_v3/public/index.php/api";
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 async function request(url_request, data_post = {}, method = 'post') {
 
     const params = new URLSearchParams();
@@ -44,13 +45,12 @@ client.on('ready', async c => {
     var chats = await client.getChats();
 
     console.log("Trovate " + chats.length + " chat");
-    if (false) {
-        sincronizza_chat(chats);
-    }
+    sincronizza_chat(chats);
     downloadImages();
 });
 
 async function sincronizza_chat(chats) {
+    console.log("Sicronizza chat");
     var arrToSend = new Array();
     for (let index = 0; index < chats.length; index++) {
         const chat = chats[index];
@@ -68,9 +68,13 @@ async function sincronizza_chat(chats) {
     let data = JSON.stringify(arrToSend);
     let buff = new Buffer(data);
     let base64data = buff.toString('base64');
+    console.log("Send base64data");
     var g = await request(url + '/chats/checkChats', { chats: base64data }).then(function(ok) {
         var response = ok.data;
+        console.log("Send base64data OK");
+
         response.forEach(chat_response => {
+            delay(1000);
             client.getChatById(chat_response.chat)
                 .then(function(chat) {
                     var messages = chat.fetchMessages().then(function(messages) {
@@ -93,6 +97,7 @@ async function sincronizza_chat(chats) {
                             console.log(err);
                         }).then(function(ok) {
                             console.log("Successo");
+                            delay(750);
                         });
                     });
                 })
@@ -101,6 +106,7 @@ async function sincronizza_chat(chats) {
                 });
         });
     }).catch(function(msg) {
+        console.log("Send base64data Error");
         console.log(msg);
     });
 }
@@ -113,30 +119,36 @@ async function downloadImages() {
         console.log("Errore downlaod image");
         return null;
     })
-    console.log("Recuperati: "+messageId.length);
+    console.log("Recuperati: " + messageId.length);
     for (let idy = 0; idy < messageId.length; idy++) {
         var mediaSend = new Array();
         const id = messageId[idy];
-        console.log("Processo "+id.chats_id);
+        console.log("Processo " + id.chats_id);
         var c = await client.getChatById(id.chats_id);
         var mexs = await c.fetchMessages({ searchOptions: { limit: 100 } });
         for (let idx = 0; idx < mexs.length; idx++) {
             const element = mexs[idx];
-            if(element.id._serialized == id.message_id) {
+            if (element.id._serialized == id.message_id) {
                 console.log("Id ricercato corrisponde ad id messaggio corrente");
-                console.log("Scarico i media");                
-                var media = await element.downloadMedia();
-                console.log("Media scaricati, aggiungo all'array");
-                mediaSend.push({chats_id: id.chats_id,messageId: id.message_id,base64data: media.data});
-                console.log("Capienza array "+mediaSend.length);
+                console.log("Scarico i media");
+                element.downloadMedia().then(function(media) {
+                    mediaSend.push({
+                        chats_id: new Buffer.from(id.chats_id).toString('base64'),
+                        messageId: new Buffer.from(id.message_id).toString('base64'),
+                        base64data: new Buffer.from(media.data).toString('base64')
+                    });
+                }).catch(function(error) {
+                    console.log("Errore download media");
+                    console.log(error);
+                });
+                delay(500);
             }
+
         }
         console.log("Base64 encode");
         let data = JSON.stringify(mediaSend);
-        let buff = new Buffer(data);
-        let base64data = buff.toString('base64');
-        console.log(base64data);
-        var r = await request(url + '/chats/messages/saveImageMessage',{data: base64data});
+
+        var r = await request(url + '/chats/messages/saveImageMessage', { data: data });
         console.log(r);
     }
 

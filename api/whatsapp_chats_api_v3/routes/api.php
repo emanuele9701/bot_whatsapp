@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ChatMessagesController;
+use App\Http\Controllers\ChatsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
