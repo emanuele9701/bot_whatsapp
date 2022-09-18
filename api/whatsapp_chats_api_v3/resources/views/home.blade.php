@@ -73,7 +73,7 @@
                     @foreach ($messageList as $message)
                         {{-- @dump($message) --}}
                         <a class="list-group-item list-group-item-action flex-column align-items-start"
-                            onclick="openChat({{ $message->id }})">
+                            href="{{ route('show_chat', $message->id) }}" href="url('')">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">{{ $message->name }}</h5>
                                 <small class="text-muted">{{ $message->updated_at }}</small>
@@ -91,10 +91,25 @@
                 overflow:scroll;
                 overflow-x: hidden;
                 -webkit-overflow-scrolling: touch;">
-                @include('messages.message_from', ['text' => 'pippo from', 'data' => '2022-01-01'])
+                @if ($messages)
+                    @foreach ($messages as $mex)
+                        @if ($mex->fromMe == 1)
+                            @include('messages.message_from', [
+                                'text' => $mex->body,
+                                'data' => $mex->updated_at,
+                            ])
+                        @else
+                            @include('messages.message_me', [
+                                'text' => $mex->body,
+                                'data' => $mex->updated_at,
+                            ])
+                        @endif
+                    @endforeach
+                @endif
+                {{-- @include('messages.message_from', ['text' => 'pippo from', 'data' => '2022-01-01'])
                 @include('messages.message_me', ['text' => 'pippo me', 'data' => '2022-01-01'])
                 @include('messages.message_from', ['text' => 'pippo from', 'data' => '2022-01-01'])
-                @include('messages.message_me', ['text' => 'pippo me', 'data' => '2022-01-01'])
+                @include('messages.message_me', ['text' => 'pippo me', 'data' => '2022-01-01']) --}}
                 <div class="row" style="position: absolute;bottom: 0px; margin-bottom: 1rem; width: 68% !important;">
                     <div class="col col-11">
                         <textarea id="makedMessage" style="width: 100%;" class="form-control"></textarea>
