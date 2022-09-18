@@ -11,8 +11,11 @@
 
     <title>Home</title>
     <style>
+        body {
+            background-color: rgb(60, 60, 60);
+        }
+
         .messagge_me {
-            text-align: left;
             background-color: burlywood;
             width: 30%;
             margin-right: 70%;
@@ -22,7 +25,7 @@
         }
 
         .messagge_from {
-            text-align: right;
+            /* text-align: right; */
             background-color: azure;
             width: 30%;
             margin-left: 70%;
@@ -47,6 +50,24 @@
 
         .text-data-me {
             font-family: 'Courier New', Courier, monospace
+        }
+
+        .messages {
+            margin-bottom: 1rem;
+        }
+
+        .module_send {
+            position: absolute;
+            bottom: 0px;
+            margin-bottom: 1rem;
+            width: 68% !important;
+            margin-top: 1rem;
+            max-width: 1000px;
+            left: 40%;
+        }
+
+        .list_message {
+            max-height: 2000px
         }
     </style>
 </head>
@@ -73,7 +94,7 @@
                     @foreach ($messageList as $message)
                         {{-- @dump($message) --}}
                         <a class="list-group-item list-group-item-action flex-column align-items-start"
-                            href="{{ route('show_chat', $message->id) }}" href="url('')">
+                            href="{{ route('show_chat', $message->chat_id) }}">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">{{ $message->name }}</h5>
                                 <small class="text-muted">{{ $message->updated_at }}</small>
@@ -83,43 +104,44 @@
                     @endforeach
                 </div>
             </div>
-            <div class="col-xl"
+            <div class="col-xl list_message"
                 style="margin-top: 3.4rem;
-                max-height: 56.2rem;
+                max-height: 800px;
                 max-width: 100%;
                 border-style: solid;
                 overflow:scroll;
                 overflow-x: hidden;
                 -webkit-overflow-scrolling: touch;">
-                @if ($messages)
-                    @foreach ($messages as $mex)
-                        @if ($mex->fromMe == 1)
-                            @include('messages.message_from', [
-                                'text' => $mex->body,
-                                'data' => $mex->updated_at,
-                            ])
-                        @else
-                            @include('messages.message_me', [
-                                'text' => $mex->body,
-                                'data' => $mex->updated_at,
-                            ])
+
+                <div class="messages">
+                    @isset($messages)
+                        @if ($messages)
+                            @foreach ($messages as $mex)
+                                @if ($mex->fromMe == 1)
+                                    @include('messages.message_from', [
+                                        'text' => $mex->body,
+                                        'data' => $mex->updated_at,
+                                    ])
+                                @else
+                                    @include('messages.message_me', [
+                                        'text' => $mex->body,
+                                        'data' => $mex->updated_at,
+                                    ])
+                                @endif
+                            @endforeach
                         @endif
-                    @endforeach
-                @endif
-                {{-- @include('messages.message_from', ['text' => 'pippo from', 'data' => '2022-01-01'])
-                @include('messages.message_me', ['text' => 'pippo me', 'data' => '2022-01-01'])
-                @include('messages.message_from', ['text' => 'pippo from', 'data' => '2022-01-01'])
-                @include('messages.message_me', ['text' => 'pippo me', 'data' => '2022-01-01']) --}}
-                <div class="row" style="position: absolute;bottom: 0px; margin-bottom: 1rem; width: 68% !important;">
-                    <div class="col col-11">
-                        <textarea id="makedMessage" style="width: 100%;" class="form-control"></textarea>
-                    </div>
-                    <div class="col col-1">
-                        <button class="btn btn-primary">Invia</button>
-                    </div>
+                    @endisset
                 </div>
             </div>
 
+        </div>
+        <div class="row module_send">
+            <div class="col col-11">
+                <textarea id="makedMessage" style="width: 100%;" class="form-control"></textarea>
+            </div>
+            <div class="col col-1">
+                <button class="btn btn-primary">Invia</button>
+            </div>
         </div>
     </div>
 

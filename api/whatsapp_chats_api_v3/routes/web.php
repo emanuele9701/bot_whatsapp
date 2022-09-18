@@ -19,6 +19,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('home')->group(function () {
     Route::get('/', function () {
         $chat = Chat::getChatsLastMessagge();
+        // echo "<pre>";
+        // var_dump($chat);die;
         return view('home', [
             'messageList' => $chat
         ]);
@@ -26,7 +28,7 @@ Route::prefix('home')->group(function () {
 
     Route::get('/{chat_id}', function ($chat_id) {
         // Recupero le chat
-        $search_chat = Chat::getChatsLastMessagge($chat_id);
+        $search_chat = Chat::getAllMessages($chat_id);
         $chat = Chat::getChatsLastMessagge();
         return view('home', [
             'messageList' => $chat,
