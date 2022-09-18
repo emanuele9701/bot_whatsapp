@@ -8,7 +8,47 @@
     <!-- CSS only -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+
     <title>Home</title>
+    <style>
+        .messagge_me {
+            text-align: left;
+            background-color: burlywood;
+            width: 30%;
+            margin-right: 70%;
+            margin-top: 1rem;
+            margin-left: 1rem;
+            border-radius: 25px
+        }
+
+        .messagge_from {
+            text-align: right;
+            background-color: azure;
+            width: 30%;
+            margin-left: 70%;
+            margin-top: 1rem;
+            margin-right: 1rem;
+            border-radius: 25px
+        }
+
+        .info-data-me {
+            text-align: right;
+            font-size: 10px
+        }
+
+        .info-data-from {
+            text-align: left;
+            font-size: 10px
+        }
+
+        .text-data-from {
+            font-family: 'Courier New', Courier, monospace
+        }
+
+        .text-data-me {
+            font-family: 'Courier New', Courier, monospace
+        }
+    </style>
 </head>
 
 <body style="overflow: hidden">
@@ -31,7 +71,7 @@
                 overflow-x: hidden;
                 -webkit-overflow-scrolling: touch;">
                     @foreach ($messageList as $message)
-                    {{-- @dump($message)  --}}
+                        {{-- @dump($message) --}}
                         <a class="list-group-item list-group-item-action flex-column align-items-start"
                             onclick="openChat({{ $message->id }})">
                             <div class="d-flex w-100 justify-content-between">
@@ -47,20 +87,15 @@
                 style="margin-top: 3.4rem;
                 max-height: 56.2rem;
                 max-width: 100%;
-            border-style: solid;
-        overflow:scroll;
-        overflow-x: hidden;
-        -webkit-overflow-scrolling: touch;">
-                <div class="row" style="max-width: 100%">
-                    {{-- Lista messaggi --}}
-                    <div class="col-xl-12">
-                        <p>
-                            Messaggio
-                        </p>
-                    </div>
-                </div>
-                <div class="row" style="">
-                    {{-- Chat text send --}}
+                border-style: solid;
+                overflow:scroll;
+                overflow-x: hidden;
+                -webkit-overflow-scrolling: touch;">
+                @include('messages.message_from', ['text' => 'pippo from', 'data' => '2022-01-01'])
+                @include('messages.message_me', ['text' => 'pippo me', 'data' => '2022-01-01'])
+                @include('messages.message_from', ['text' => 'pippo from', 'data' => '2022-01-01'])
+                @include('messages.message_me', ['text' => 'pippo me', 'data' => '2022-01-01'])
+                <div class="row" style="position: absolute;bottom: 0px; margin-bottom: 1rem; width: 68% !important;">
                     <div class="col col-11">
                         <textarea id="makedMessage" style="width: 100%;" class="form-control"></textarea>
                     </div>
