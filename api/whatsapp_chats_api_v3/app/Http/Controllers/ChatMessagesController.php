@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Chat;
 use App\Models\MediaMessage;
 use App\Models\Message;
+use App\Models\Response;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -26,6 +27,22 @@ class ChatMessagesController extends Controller
         return $allMex;
     }
 
+    public function responseMessage(Request $request)
+    {
+        $message = $request->input('message');
+        if (empty($message)) {
+            return ['esito' => false, 'msg' => 'No message!'];
+        }
+
+        $new_response = new Response();
+        $new_response->chat_id = $request->input('chat_id');
+        $new_response->text_message = $request->input('message');
+        $new_response->flag_sended = 0;
+        $new_response->save();
+
+        return ['esito' => true, 'id' => $new_response->id];
+    }
+
     public function insertNewMessage(Request $request)
     {
         $messages = json_decode(base64_decode($request->input('message')), true);
@@ -36,14 +53,14 @@ class ChatMessagesController extends Controller
             $probMex = Message::findForMessageId($messages['message_id']);
             if (!$probMex) {
                 Message::insert($messages);
-                Chat::updateFromChatId($messages['chats_id'],['hasNewMex' => 1]);
+                Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
             }
         } else {
             foreach ($messages as $message) {
                 $probMex = Message::findForMessageId($message['message_id']);
                 if (!$probMex) {
                     Message::insert($message);
-                    Chat::updateFromChatId($messages['chats_id'],['hasNewMex' => 1]);
+                    Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
                 }
             }
         }

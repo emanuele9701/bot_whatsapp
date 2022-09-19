@@ -24,7 +24,8 @@ Route::get("/ping", function () use ($router) {
 Route::group(['prefix' => 'chats'], function () use ($router) {
     Route::post('checkChats', [ChatsController::class,'checkChats']);
     Route::group(['prefix' => 'messages'], function () use ($router) {
-        Route::post('insertNewMessage',[ChatMessagesController::class,'insertNewMessage']);
+        Route::post('insertNewMessage',[ChatMessagesController::class,'insertNewMessage'])->name("insertNewMessage");
+        Route::post('responseMessage',[ChatMessagesController::class,'responseMessage'])->name("responseMessage");
         Route::get('getMessageImage',[ChatMessagesController::class,'getMessageImage']);
         Route::get('all/{idChat}',[ChatMessagesController::class,'all']);
         Route::post('saveImageMessage',[ChatMessagesController::class,'saveMessageImage']);

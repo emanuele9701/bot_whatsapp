@@ -113,7 +113,7 @@
                 overflow-x: hidden;
                 -webkit-overflow-scrolling: touch;">
 
-                <div class="messages">
+                <div class="messages" id="mex_list">
                     @isset($messages)
                         @if ($messages)
                             @foreach ($messages as $mex)
@@ -140,7 +140,7 @@
                 <textarea id="makedMessage" style="width: 100%;" class="form-control"></textarea>
             </div>
             <div class="col col-1">
-                <button class="btn btn-primary">Invia</button>
+                <button class="btn btn-primary" onclick="sendMessage()">Invia</button>
             </div>
         </div>
     </div>
@@ -154,7 +154,10 @@
         integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
+        let currentChat = 0;
+
         function openChat(idChat) {
+            currentChat = idChat;
             $.ajax({
                 url: "{{ url('api/chats/messages/all/') }}/" + idChat,
                 method: 'get',
@@ -163,6 +166,25 @@
 
                 }
             })
+        }
+
+        function sendMessage() {
+            var mx = $("#makedMessage").val();
+            $.ajax({
+                url: "{{ route('responseMessage') }}",
+                data: {
+                    chat_id: {{ $chat_id }},
+                    message: mx
+                },
+                method: 'post',
+                dataType: 'json',
+                success: function(e) {
+                    if (e.esito == true) {
+                        $("#mex_list").append('<div class="row messagge_from"><p class="text-data-me">' + mx +
+                            '</p><small class="info-data-me">Oggi</small></div>');
+                    }
+                }
+            });
         }
     </script>
 </body>

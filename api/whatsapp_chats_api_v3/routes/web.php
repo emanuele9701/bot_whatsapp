@@ -32,12 +32,13 @@ Route::prefix('home')->group(function () {
         $chat = Chat::getChatsLastMessagge();
         return view('home', [
             'messageList' => $chat,
-            'messages' => $search_chat
+            'messages' => $search_chat,
+            'chat_id' => $chat_id
         ]);
     })->name('show_chat');
 });
 
 
 Route::get('/', function () {
-    redirect('home');
+    return redirect('home');
 });
