@@ -45,70 +45,68 @@ client.on('ready', async c => {
     var chats = await client.getChats();
 
     console.log("Trovate " + chats.length + " chat");
+
     sincronizza_chat(chats);
     // downloadImages();
 });
 
 async function sincronizza_chat(chats) {
     console.log("Sicronizza chat");
-    var arrToSend = new Array();
+    var listChats = new Array();
+    var listMessage = new Array();
     for (let index = 0; index < chats.length; index++) {
+        console.log(index + " of " + chats.length);
         const chat = chats[index];
         if (chat.isGroup == true || chat.isReadOnly == true) {
             continue;
         }
-        let ar = {
+        listChats.push({
             chats_id: chat.id._serialized,
             name: chat.name,
             timestamp_chat: chat.timestamp
-        }
-        arrToSend.push(ar);
+        });
+
+        await chat.fetchMessages({ limit: 1000 }).catch((error) => {
+            console.log(" ----------- Errore in fetch message -------------");
+            console.log(error);
+        }).then((messages) => {
+            for (let x = 0; x < messages.length; x++) {
+                const message = messages[x];
+                listMessage.push({
+                    fromMe: message.fromMe,
+                    chats_id: chat.id._serialized,
+                    body: message.body,
+                    timestamp_message: message.timestamp,
+                    hasMedia: message.hasMedia,
+                    message_id: message.id._serialized
+                });
+            }
+        });
     }
 
-    let data = JSON.stringify(arrToSend);
-    let buff = new Buffer(data);
-    let base64data = buff.toString('base64');
-    console.log("Send base64data");
-    var g = await request(url + '/chats/checkChats', { chats: base64data }).then(function(ok) {
-        var response = ok.data;
-        console.log("Send base64data OK");
+    var h = Buffer.from(JSON.stringify(listChats));
 
-        response.forEach(chat_response => {
-            delay(1000);
-            client.getChatById(chat_response.chat)
-                .then(function(chat) {
-                    var messages = chat.fetchMessages().then(function(messages) {
-                        var listMessage = new Array();
-                        messages.forEach(message => {
-                            listMessage.push({
-                                fromMe: message.fromMe,
-                                chats_id: chat.id._serialized,
-                                body: message.body,
-                                timestamp_message: message.timestamp,
-                                hasMedia: message.hasMedia,
-                                message_id: message.id._serialized
-                            });
-                        });
+    await request(url + "/chats/checkChats", { chats: h.toString('base64') }).then((res) => {
+        if (res.data.length <= 0) {
+            console.log("Non ha aggiunto nessuna chat, chat totali da aggiungere: " + listChats.length);
+        } else {
+            console.log("Ha aggiunto chat " + res.data.length + ", chat totali da aggiungere: " + listChats.length);
+        }
+    }).catch((err) => {
+        console.log("Errore nell'aggiunta delle chat");
+        console.log(err);
+    })
 
-                        let data = JSON.stringify(listMessage);
-                        let buff = new Buffer(data);
-                        let base64data = buff.toString('base64');
-                        request(url + "/chats/messages/insertNewMessage", { message: base64data }).catch(function(err) {
-                            console.log(err);
-                        }).then(function(ok) {
-                            console.log("Successo");
-                            delay(750);
-                        });
-                    });
-                })
-                .catch(function(err) {
-                    console.log(err)
-                });
-        });
-    }).catch(function(msg) {
-        console.log("Send base64data Error");
-        console.log(msg);
-    });
+    await request(url + "/chats/messages/insertMultiNewMessage", { message: Buffer.from(JSON.stringify(listMessage)).toString('base64') }).then((res) => {
+        if (res.data.esito == true) {
+            console.log("Messaggio aggiunto");
+        } else {
+            console.log(res.msg);
+        }
+    }).catch((err) => {
+        console.log("Errore nell'aggiunta del mex");
+        console.log(err);
+    })
 }
 
 async function downloadImages() {
