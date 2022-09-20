@@ -30,7 +30,7 @@ class ChatsController extends BaseController
             } else {
                 $return[] = ['chat' => $chat['chats_id']];
             }
-        }
+        }   
 
         return $return;
     }

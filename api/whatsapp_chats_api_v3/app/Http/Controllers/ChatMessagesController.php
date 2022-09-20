@@ -67,6 +67,31 @@ class ChatMessagesController extends Controller
         return ['esito' => true, 'msg' => 'Ok'];
     }
 
+    public function insertMultiNewMessage(Request $request)
+    {
+        $messages = json_decode(base64_decode($request->input('message')), true);
+        if (empty($messages)) {
+            return ['esito' => false, 'msg' => 'No message!'];
+        }
+        foreach ($messages as $mex) {
+
+            if (isset($mex['fromMe'])) {
+                $probMex = Message::findForMessageId($mex['message_id']);
+                if (!$probMex) {
+                    Message::insert($mex);
+                    Chat::updateFromChatId($mex['chats_id'], ['hasNewMex' => 1]);
+                }
+            } else {
+                $probMex = Message::findForMessageId($mex['message_id']);
+                if (!$probMex) {
+                    Message::insert($mex);
+                    Chat::updateFromChatId($mex['chats_id'], ['hasNewMex' => 1]);
+                }
+            }
+        }
+        return ['esito' => true, 'msg' => 'Ok'];
+    }
+
 
     /**
      * Ritorna i messaggi che contengono un immagine

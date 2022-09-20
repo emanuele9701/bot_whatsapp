@@ -167,7 +167,7 @@
                 }
             })
         }
-
+        @isset($messages)
         function sendMessage() {
             var mx = $("#makedMessage").val();
             $.ajax({
@@ -186,6 +186,7 @@
                 }
             });
         }
+        @endisset
     </script>
 </body>
 

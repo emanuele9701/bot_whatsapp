@@ -25,6 +25,7 @@ Route::group(['prefix' => 'chats'], function () use ($router) {
     Route::post('checkChats', [ChatsController::class,'checkChats']);
     Route::group(['prefix' => 'messages'], function () use ($router) {
         Route::post('insertNewMessage',[ChatMessagesController::class,'insertNewMessage'])->name("insertNewMessage");
+        Route::post('insertMultiNewMessage',[ChatMessagesController::class,'insertMultiNewMessage'])->name("insertMultiNewMessage");
         Route::post('responseMessage',[ChatMessagesController::class,'responseMessage'])->name("responseMessage");
         Route::get('getMessageImage',[ChatMessagesController::class,'getMessageImage']);
         Route::get('all/{idChat}',[ChatMessagesController::class,'all']);
