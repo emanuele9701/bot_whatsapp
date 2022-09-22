@@ -17,7 +17,7 @@ class CreateChatsTable extends Migration
             $table->id();
             $table->string("chats_id");
             $table->string("name");
-            $table->integer("timestamp_chat")->nullable(true);
+            $table->bigInteger("timestamp_chat")->nullable(true);
             $table->tinyInteger('hasNewMex',false,true)->default(0);
             $table->index('chats_id');
             $table->timestamp('created_at')->useCurrent();

@@ -63,7 +63,7 @@ async function sincronizza_chat(chats) {
         listChats.push({
             chats_id: chat.id._serialized,
             name: chat.name,
-            timestamp_chat: chat.timestamp
+            timestamp_chat: chat.timestamp*1000
         });
 
         await chat.fetchMessages({ limit: 1000 }).catch((error) => {
@@ -76,7 +76,7 @@ async function sincronizza_chat(chats) {
                     fromMe: message.fromMe,
                     chats_id: chat.id._serialized,
                     body: message.body,
-                    timestamp_message: message.timestamp,
+                    timestamp_message: message.timestamp*1000,
                     hasMedia: message.hasMedia,
                     message_id: message.id._serialized
                 });
@@ -159,13 +159,13 @@ client.on('message', async msg => {
         fromMe: msg.fromMe,
         chats_id: msg.from,
         body: msg.body,
-        timestamp_message: msg.timestamp,
+        timestamp_message: msg.timestamp*1000,
         hasMedia: msg.hasMedia,
         message_id: msg.id._serialized,
         hasNewMex: 1
     }
     let data = JSON.stringify(msg);
-    let buff = new Buffer(data);
+    let buff = new Buffer.from(data);
     let base64data = buff.toString('base64');
     request(url + "/chats/messages/insertNewMessage", { message: base64data }).catch(function(err) {
         console.log("Errore", err);

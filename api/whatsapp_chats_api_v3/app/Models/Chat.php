@@ -40,6 +40,7 @@ class Chat extends Model
         foreach ($allChat as $chat) {
             $message = Message::findForChatsId($chat->chats_id, false, true);
             if ($message !== false) {
+                $message->timestamp_message = date("Y-m-d H:i:s",$message->timestamp_message/1000);
                 $mx[] = $message;
             }
         }
@@ -49,6 +50,10 @@ class Chat extends Model
 
     public static function getAllMessages($chat_id) {
         $mx = DB::table('chat_messages','cm')->join('chats','cm.chats_id','=','chats.chats_id')->where('chats.id','=',$chat_id)->get(['cm.*','chats.updated_at']);
+        
+        foreach ($mx as $key => $m) {
+            $mx[$key]->timestamp_message = date("Y-m-d H:i:s",$m->timestamp_message/1000);
+        }
         return $mx;
     }
 }

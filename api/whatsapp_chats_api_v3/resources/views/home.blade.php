@@ -97,7 +97,7 @@
                             href="{{ route('show_chat', $message->chat_id) }}">
                             <div class="d-flex w-100 justify-content-between">
                                 <h5 class="mb-1">{{ $message->name }}</h5>
-                                <small class="text-muted">{{ $message->updated_at }}</small>
+                                <small class="text-muted">{{ $message->timestamp_message }}</small>
                             </div>
                             <p class="mb-1">{{ $message->body }}</p>
                         </a>
@@ -120,12 +120,12 @@
                                 @if ($mex->fromMe == 1)
                                     @include('messages.message_from', [
                                         'text' => $mex->body,
-                                        'data' => $mex->updated_at,
+                                        'data' => $mex->timestamp_message,
                                     ])
                                 @else
                                     @include('messages.message_me', [
                                         'text' => $mex->body,
-                                        'data' => $mex->updated_at,
+                                        'data' => $mex->timestamp_message,
                                     ])
                                 @endif
                             @endforeach

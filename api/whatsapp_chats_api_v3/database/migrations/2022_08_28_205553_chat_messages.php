@@ -19,7 +19,7 @@ class ChatMessages extends Migration
             $table->string("chats_id");
             $table->string("message_id");
             $table->text("body");
-            $table->integer("timestamp_message");
+            $table->bigInteger("timestamp_message");
             $table->boolean("fromMe")->default(0);
             $table->boolean("hasMedia")->default(0);
             $table->tinyInteger("hasNewMex")->default(0);
