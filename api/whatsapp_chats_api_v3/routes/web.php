@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('home')->group(function () {
     Route::get('/', function () {
-        $chat = Chat::getChatsLastMessagge();
+        $chat = Chat::allChats();
         // echo "<pre>";
         // var_dump($chat);die;
         return view('home', [

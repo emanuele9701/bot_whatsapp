@@ -59,7 +59,6 @@
         .module_send {
             position: absolute;
             bottom: 0px;
-            margin-bottom: 1rem;
             width: 68% !important;
             margin-top: 1rem;
             max-width: 1000px;
@@ -75,7 +74,7 @@
 <body style="overflow: hidden">
     <div class="container" style="margin: 1rem; max-width: 98%;">
         <div class="row">
-            <div class="col-md" style="max-width: 31%;">
+            <div class="col-md" style="max-width: 25%;">
                 <div class="row">
                     <div class="col-xl" style="margin-bottom: 1rem; position: left;margin-right: 30%">
                         <div class="form-group">
@@ -85,7 +84,7 @@
                     </div>
                 </div>
                 <div class="list-group"
-                    style="max-height: 900px;
+                    style="max-height: 866px;
                     border-style: solid;
                 margin-bottom: 10px;
                 overflow:scroll;

@@ -20,6 +20,16 @@ class Chat extends Model
         }
     }
 
+    public static function allChats($sort = "asc") {
+        $chats = DB::table("chats","c")->join("chat_messages","c.chats_id","=","chat_messages.chats_id")->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id','c.*','chat_messages.*']);
+        foreach ($chats as $k => $chat) {
+            $chats[$k]->timestamp_message = date("Y-m-d H:i:s",$chat->timestamp_message/1000);
+        }
+
+        return $chats;
+
+    }
+
     public static function insert($chat)
     {
         return DB::table('chats')->insert($chat);
@@ -33,7 +43,7 @@ class Chat extends Model
     /**
      * Restituisce la chat con l'ultimo messaggio
      */
-    public static function getChatsLastMessagge()
+    public static function getChatsLastMessagge($sort = "asc")
     {
         $mx = [];
         $allChat = Chat::all('chats_id');
