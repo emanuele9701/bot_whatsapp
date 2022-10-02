@@ -47,8 +47,8 @@ client.on('ready', async c => {
 
     console.log("Trovate " + chats.length + " chat");
 
-    // sincronizza_chat(chats);
-    downloadImages();
+    sincronizza_chat(chats);
+    // downloadImages();
 });
 
 async function sincronizza_chat(chats) {
