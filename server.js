@@ -165,7 +165,7 @@ async function downloadImages() {
     for (let x = 0; x < mediaToDownload.length; x++) {
         const element = mediaToDownload[x];
         var messaggio = element.ws_messaggio;
-        writeSuccessLog("Scarico media per "+element.message_id);
+        writeSuccessLog("Scarico media per " + element.message_id);
         await messaggio.downloadMedia().then(function(media) {
             mediaSend.push({
                 chats_id: element.chats_id,
@@ -176,11 +176,15 @@ async function downloadImages() {
         }).catch(function(error) {
             writeErrorLog(getDateitalianFormat() + error + " - Errore nel download media per il messaggio: " + element.message_id);
         });
-        
-        var modRes = x % 100;
+
+        if (x == 0) {
+            continue;
+        }
+        var modRes = x % 20;
         if (modRes == 0) {
             writeSuccessLog("Preparo invio con ws " + url + '/chats/messages/saveImageMessage');
-            await request(url + '/chats/messages/saveImageMessage', { data: new Buffer.from(JSON.stringify(data)).toString('base64') }).then(function(succes) {
+            writeSendRequestLog("Salvo immagini: "+new Buffer.from(JSON.stringify(mediaSend)).toString('base64'));
+            await request(url + '/chats/messages/saveImageMessage', { data: new Buffer.from(JSON.stringify(mediaSend)).toString('base64') }).then(function(succes) {
                 writeSuccessLog("Inviati con successo!");
             }).catch(function(error) {
                 writeErrorLog("Errore nell'invio. " + error);
@@ -201,6 +205,13 @@ function getDateitalianFormat() {
     var seconds = date.getSeconds();
 
     return day + "/" + month + "/" + year + " " + hour + ":" + minutes + ":" + seconds;
+}
+
+async function writeSendRequestLog(stringa) {
+    console.log("ERRORE: " + stringa);
+    fs.appendFileSync('request_log_sended.log', stringa + "\n", function(err) {
+        if (err) return console.log(err);
+    });
 }
 
 async function writeErrorLog(stringa) {
