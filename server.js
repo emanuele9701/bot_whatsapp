@@ -48,7 +48,7 @@ client.on('ready', async c => {
     console.log("Trovate " + chats.length + " chat");
 
     sincronizza_chat(chats);
-    // downloadImages();
+    downloadImages();
 });
 
 async function sincronizza_chat(chats) {
@@ -180,7 +180,7 @@ async function downloadImages() {
         if (x == 0) {
             continue;
         }
-        var modRes = x % 20;
+        var modRes = mediaSend.length % 5;
         if (modRes == 0) {
             writeSuccessLog("Preparo invio con ws " + url + '/chats/messages/saveImageMessage');
             writeSendRequestLog("Salvo immagini: "+new Buffer.from(JSON.stringify(mediaSend)).toString('base64'));
