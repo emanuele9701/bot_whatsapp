@@ -29,7 +29,7 @@ Route::prefix('home')->group(function () {
     Route::get('/{chat_id}', function ($chat_id) {
         // Recupero le chat
         $search_chat = Chat::getAllMessages($chat_id);
-        $chat = Chat::getChatsLastMessagge();
+        $chat = Chat::allChats();
         return view('home', [
             'messageList' => $chat,
             'messages' => $search_chat,

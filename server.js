@@ -2,6 +2,7 @@ const { Client, Location, List, Buttons, LocalAuth, Message } = require('./node_
 const axios = require("axios/index.js");
 const url = "http://localhost/whatsapp_chats/api/whatsapp_chats_api_v3/public/index.php/api";
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+const fs = require('fs');
 async function request(url_request, data_post = {}, method = 'post') {
 
     const params = new URLSearchParams();
@@ -39,15 +40,15 @@ client.on('authenticated', () => {
     console.log('AUTHENTICATED');
 });
 
-
+var chats = new Array();
 
 client.on('ready', async c => {
-    var chats = await client.getChats();
+    chats = await client.getChats();
 
     console.log("Trovate " + chats.length + " chat");
 
-    sincronizza_chat(chats);
-    // downloadImages();
+    // sincronizza_chat(chats);
+    downloadImages();
 });
 
 async function sincronizza_chat(chats) {
@@ -63,7 +64,7 @@ async function sincronizza_chat(chats) {
         listChats.push({
             chats_id: chat.id._serialized,
             name: chat.name,
-            timestamp_chat: chat.timestamp*1000
+            timestamp_chat: chat.timestamp * 1000
         });
 
         await chat.fetchMessages({ limit: 1000 }).catch((error) => {
@@ -76,7 +77,7 @@ async function sincronizza_chat(chats) {
                     fromMe: message.fromMe,
                     chats_id: chat.id._serialized,
                     body: message.body,
-                    timestamp_message: message.timestamp*1000,
+                    timestamp_message: message.timestamp * 1000,
                     hasMedia: message.hasMedia,
                     message_id: message.id._serialized
                 });
@@ -109,48 +110,111 @@ async function sincronizza_chat(chats) {
     })
 }
 
+function getChatById(idChat) {
+    var chatSearched = null;
+    chats.forEach(chat => {
+        if (chat.id._serialized == idChat) {
+            chatSearched = chat;
+        }
+    });
+    return chatSearched;
+}
+
 async function downloadImages() {
-    console.log(url + "/chats/messages/getMessageImage");
+
     var messageId = await request(url + "/chats/messages/getMessageImage", {}, 'get').then(function(ok) {
+        writeSuccessLog("Recuperati " + ok.data.length + " messaggi da analizzare");
         return ok.data;
     }).catch(function(e) {
-        console.log("Errore downlaod image");
+        writeErrorLog("Errore recupero messaggi da analizzare " + e);
         return null;
     })
-    console.log("Recuperati: " + messageId.length);
+    if (messageId == null) {
+        return false;
+    }
+
+    var mediaToDownload = new Array();
     for (let idy = 0; idy < messageId.length; idy++) {
         var mediaSend = new Array();
         const id = messageId[idy];
-        console.log("Processo " + id.chats_id);
-        var c = await client.getChatById(id.chats_id);
-        var mexs = await c.fetchMessages({ searchOptions: { limit: 100 } });
-        for (let idx = 0; idx < mexs.length; idx++) {
-            const element = mexs[idx];
-            if (element.id._serialized == id.message_id) {
-                console.log("Id ricercato corrisponde ad id messaggio corrente");
-                console.log("Scarico i media");
-                element.downloadMedia().then(function(media) {
-                    mediaSend.push({
-                        chats_id: new Buffer.from(id.chats_id).toString('base64'),
-                        messageId: new Buffer.from(id.message_id).toString('base64'),
-                        base64data: new Buffer.from(media.data).toString('base64')
-                    });
-                }).catch(function(error) {
-                    console.log("Errore download media");
-                    console.log(error);
-                });
-                delay(500);
-            }
-
+        writeSuccessLog("Processo chat: " + id.chats_id);
+        var c = getChatById(id.chats_id);
+        if (c == null) {
+            writeErrorLog("Chat non trovata, chat id: " + id.chats_id);
+            continue;
         }
-        console.log("Base64 encode");
-        let data = JSON.stringify(mediaSend);
-
-        var r = await request(url + '/chats/messages/saveImageMessage', { data: data });
-        console.log(r);
+        await c.fetchMessages({ limit: 1000 }).then(function(messaggi) {
+            writeSuccessLog("Recuperati: " + messaggi.length);
+            messaggi.forEach(function(messaggio) {
+                writeSuccessLog("Cerco messaggio: " + id.message_id);
+                if (messaggio.id._serialized == id.message_id) {
+                    writeSuccessLog("Trovato, scarico i media");
+                    // Scarico i media
+                    mediaToDownload.push({
+                        chat_id: id.chats_id,
+                        message_id: id.message_id,
+                        ws_messaggio: messaggio
+                    });
+                }
+            });
+        }).catch(function(error) {
+            writeErrorLog(getDateitalianFormat() + error + " - Errore nel recupero messaggi per la chat: " + id.chats_id);
+        });
     }
 
+    for (let x = 0; x < mediaToDownload.length; x++) {
+        const element = mediaToDownload[x];
+        var messaggio = element.ws_messaggio;
+        writeSuccessLog("Scarico media per "+element.message_id);
+        await messaggio.downloadMedia().then(function(media) {
+            mediaSend.push({
+                chats_id: element.chats_id,
+                messageId: element.message_id,
+                base64data: new Buffer.from(media.data).toString('base64')
+            });
+            writeSuccessLog(getDateitalianFormat() + " Scaricato media per " + element.message_id);
+        }).catch(function(error) {
+            writeErrorLog(getDateitalianFormat() + error + " - Errore nel download media per il messaggio: " + element.message_id);
+        });
+        
+        var modRes = x % 100;
+        if (modRes == 0) {
+            writeSuccessLog("Preparo invio con ws " + url + '/chats/messages/saveImageMessage');
+            await request(url + '/chats/messages/saveImageMessage', { data: new Buffer.from(JSON.stringify(data)).toString('base64') }).then(function(succes) {
+                writeSuccessLog("Inviati con successo!");
+            }).catch(function(error) {
+                writeErrorLog("Errore nell'invio. " + error);
+            });
+            mediaSend = new Array();
+        }
+    }
 
+}
+
+function getDateitalianFormat() {
+    var date = new Date();
+    var year = date.getFullYear();
+    var month = date.getMonth();
+    var day = date.getDay();
+    var hour = date.getHours();
+    var minutes = date.getMinutes();
+    var seconds = date.getSeconds();
+
+    return day + "/" + month + "/" + year + " " + hour + ":" + minutes + ":" + seconds;
+}
+
+async function writeErrorLog(stringa) {
+    console.log("ERRORE: " + stringa);
+    fs.appendFileSync('error.log', stringa + "\n", function(err) {
+        if (err) return console.log(err);
+    });
+}
+
+async function writeSuccessLog(stringa) {
+    console.log("SUCCESSO: " + stringa);
+    fs.appendFileSync('success.log', stringa + "\n", function(err) {
+        if (err) return console.log(err);
+    });
 }
 
 client.on('message', async msg => {
@@ -159,7 +223,7 @@ client.on('message', async msg => {
         fromMe: msg.fromMe,
         chats_id: msg.from,
         body: msg.body,
-        timestamp_message: msg.timestamp*1000,
+        timestamp_message: msg.timestamp * 1000,
         hasMedia: msg.hasMedia,
         message_id: msg.id._serialized,
         hasNewMex: 1
