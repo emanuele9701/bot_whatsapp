@@ -1,6 +1,6 @@
 const { Client, Location, List, Buttons, LocalAuth, Message } = require('./node_modules/whatsapp-web.js/index');
 const axios = require("axios/index.js");
-const url = "http://localhost/whatsapp_chats/api/whatsapp_chats_api_v3/public/index.php/api";
+const url = "http://localhost/bot_whatsapp/api/whatsapp_chats_api_v3/public/index.php/api";
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 const fs = require('fs');
 async function request(url_request, data_post = {}, method = 'post') {
