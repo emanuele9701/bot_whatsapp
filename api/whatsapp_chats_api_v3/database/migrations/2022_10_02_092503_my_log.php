@@ -13,10 +13,10 @@ class MyLog extends Migration
      */
     public function up()
     {
-        Schema::create('MyLog', function (Blueprint $table) {
+        Schema::create('mylog', function (Blueprint $table) {
             $table->increments('id');
             $table->string('request');
-            $table->longText("body");
+            $table->json("body");
             $table->string("ip_from");
             $table->timestamps();
         });
@@ -29,6 +29,6 @@ class MyLog extends Migration
      */
     public function down()
     {
-        Schema::dropDatabaseIfExists('MyLog');
+        Schema::dropDatabaseIfExists('mylog');
     }
 }

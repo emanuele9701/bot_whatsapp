@@ -18,11 +18,11 @@ use Illuminate\Support\Facades\Route;
 */
 
 
-Route::get("/ping", function () use ($router) {
-    return ["Ping ok"];
-});
 Route::middleware([LogRoute::class])->group(function () use ($router) {
     Route::group(['prefix' => 'chats'], function () use ($router) {
+        Route::get("/ping", function () use ($router) {
+            return ["Ping ok"];
+        });
         Route::post('checkChats', [ChatsController::class, 'checkChats']);
         Route::group(['prefix' => 'messages'], function () use ($router) {
             Route::post('insertNewMessage', [ChatMessagesController::class, 'insertNewMessage'])->name("insertNewMessage");

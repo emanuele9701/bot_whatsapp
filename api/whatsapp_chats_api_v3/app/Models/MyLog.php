@@ -9,6 +9,5 @@ class MyLog extends Model
 {
     use HasFactory;
 
-    protected $table = 'advisor_check';
-
+    protected $table = 'mylog';
 }

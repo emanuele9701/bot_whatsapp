@@ -21,8 +21,9 @@ class LogRoute
         
         $log = new MyLog();
         $log->request = $request->getUri();
-        $log->body = $request->all();
+        $log->body = json_encode($request->all());
         $log->ip_from = $request->ip();
+
         $log->save();
         
         return $response;
