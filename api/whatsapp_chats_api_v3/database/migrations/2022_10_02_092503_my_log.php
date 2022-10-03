@@ -29,6 +29,6 @@ class MyLog extends Migration
      */
     public function down()
     {
-        Schema::dropDatabaseIfExists('mylog');
+        Schema::dropIfExists('mylog');
     }
 }
