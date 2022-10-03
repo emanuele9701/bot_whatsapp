@@ -131,7 +131,7 @@ class ChatMessagesController extends Controller
         $imageName = uniqid() . ".jpeg";
         if (Storage::disk('local')->put($imageName, base64_decode($bs64img))) {
             $media = new MediaMessage();
-            $media->name = uniqid() . ".jpeg";
+            $media->name = $imageName;
             $media->message_id = $message_id;
             $media->chats_id = $chats_id;
             $media->save();

@@ -11,6 +11,11 @@
 
     <title>Home</title>
     <style>
+        .card {
+            background-color: burlywood;
+            border: none;
+            margin: 1rem;
+        }
         body {
             background-color: rgb(60, 60, 60);
         }
@@ -120,11 +125,13 @@
                                     @include('messages.message_from', [
                                         'text' => $mex->body,
                                         'data' => $mex->timestamp_message,
+                                        'image' => $mex->nome_immagine,
                                     ])
                                 @else
                                     @include('messages.message_me', [
                                         'text' => $mex->body,
                                         'data' => $mex->timestamp_message,
+                                        'image' => $mex->nome_immagine,
                                     ])
                                 @endif
                             @endforeach
@@ -167,24 +174,25 @@
             })
         }
         @isset($messages)
-        function sendMessage() {
-            var mx = $("#makedMessage").val();
-            $.ajax({
-                url: "{{ route('responseMessage') }}",
-                data: {
-                    chat_id: {{ $chat_id }},
-                    message: mx
-                },
-                method: 'post',
-                dataType: 'json',
-                success: function(e) {
-                    if (e.esito == true) {
-                        $("#mex_list").append('<div class="row messagge_from"><p class="text-data-me">' + mx +
-                            '</p><small class="info-data-me">Oggi</small></div>');
+            function sendMessage() {
+                var mx = $("#makedMessage").val();
+                $.ajax({
+                    url: "{{ route('responseMessage') }}",
+                    data: {
+                        chat_id: {{ $chat_id }},
+                        message: mx
+                    },
+                    method: 'post',
+                    dataType: 'json',
+                    success: function(e) {
+                        if (e.esito == true) {
+                            $("#mex_list").append('<div class="row messagge_from"><p class="text-data-me">' +
+                                mx +
+                                '</p><small class="info-data-me">Oggi</small></div>');
+                        }
                     }
-                }
-            });
-        }
+                });
+            }
         @endisset
     </script>
 </body>

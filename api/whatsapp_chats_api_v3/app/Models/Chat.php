@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class Chat extends Model
 {
@@ -20,14 +21,14 @@ class Chat extends Model
         }
     }
 
-    public static function allChats($sort = "asc") {
-        $chats = DB::table("chats","c")->join("chat_messages","c.chats_id","=","chat_messages.chats_id")->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id','c.*','chat_messages.*']);
+    public static function allChats($sort = "asc")
+    {
+        $chats = DB::table("chats", "c")->join("chat_messages", "c.chats_id", "=", "chat_messages.chats_id")->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id', 'c.*', 'chat_messages.*']);
         foreach ($chats as $k => $chat) {
-            $chats[$k]->timestamp_message = date("Y-m-d H:i:s",$chat->timestamp_message/1000);
+            $chats[$k]->timestamp_message = date("Y-m-d H:i:s", $chat->timestamp_message / 1000);
         }
 
         return $chats;
-
     }
 
     public static function insert($chat)
@@ -50,7 +51,7 @@ class Chat extends Model
         foreach ($allChat as $chat) {
             $message = Message::findForChatsId($chat->chats_id, false, true);
             if ($message !== false) {
-                $message->timestamp_message = date("Y-m-d H:i:s",$message->timestamp_message/1000);
+                $message->timestamp_message = date("Y-m-d H:i:s", $message->timestamp_message / 1000);
                 $mx[] = $message;
             }
         }
@@ -58,12 +59,19 @@ class Chat extends Model
     }
 
 
-    public static function getAllMessages($chat_id) {
-        $mx = DB::table('chat_messages','cm')->join('chats','cm.chats_id','=','chats.chats_id')->where('chats.id','=',$chat_id)->get(['cm.*','chats.updated_at']);
-        
+    public static function getAllMessages($chat_id)
+    {
+        $mx = DB::table('chat_messages', 'cm')->join('chats', 'cm.chats_id', '=', 'chats.chats_id')->leftJoin("media_messages", 'media_messages.message_id', '=', 'cm.message_id')->where('chats.id', '=', $chat_id)->get(['cm.*', 'chats.updated_at', 'media_messages.name as nome_immagine']);
+
         foreach ($mx as $key => $m) {
-            $mx[$key]->timestamp_message = date("Y-m-d H:i:s",$m->timestamp_message/1000);
+            $mx[$key]->timestamp_message = date("Y-m-d H:i:s", $m->timestamp_message / 1000);
+            if ($mx[$key]->nome_immagine != null) {
+                $mx[$key]->nome_immagine = env('APP_URL') . str_replace('storage/', 'storage/app/', Storage::url($mx[$key]->nome_immagine));
+            }
         }
+        // echo "<pre>";
+        // var_dump($mx);
+        // die;
         return $mx;
     }
 }

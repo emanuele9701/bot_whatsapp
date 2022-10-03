@@ -225,7 +225,11 @@ async function writeSuccessLog(stringa) {
     });
 }
 
-client.on('message', async msg => {
+client.on('message_create', async msg => {
+    salvaMessaggio(msg);
+});
+
+async function salvaMessaggio(msg) {
 
     var msgSend = {
         fromMe: msg.fromMe,
@@ -235,6 +239,10 @@ client.on('message', async msg => {
         hasMedia: msg.hasMedia,
         message_id: msg.id._serialized,
         hasNewMex: 1
+    }
+
+    if(msg.fromMe) {
+        msgSend['chats_id'] = msg.to;
     }
     let data = JSON.stringify(msgSend);
     let buff = new Buffer.from(data);
@@ -266,5 +274,9 @@ client.on('message', async msg => {
             });
         }
     }
+}
+
+client.on('message', async msg => {
+    salvaMessaggio(msg);
 });
 // Procedi a filtrare le chat per archiviazione per mancata risposta - oppure filtra per dissenso all'offerta*/
