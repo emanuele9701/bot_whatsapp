@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 
 class Message extends Model
 {
-    protected $table = "chats";
+    protected $table = "chat_messages";
 
     public static function findForChatsId($chat_id, $toArray = true, $classReturn = false)
     {

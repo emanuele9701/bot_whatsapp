@@ -19,12 +19,16 @@ class LogRoute
     {
         $response = $next($request);
         
-        $log = new MyLog();
-        $log->request = $request->getUri();
-        $log->body = json_encode($request->all());
-        $log->ip_from = $request->ip();
+        // $log = new MyLog();
+        // $log->request = $request->getUri();
+        // if(strpos($request->getUri(),"saveImageMessage") === false) {
+        //     $log->body = base64_encode(json_encode($request->all()));
+        // } else {
+        //     $log->body = "";
+        // }
+        // $log->ip_from = $request->ip();
 
-        $log->save();
+        // $log->save();
         
         return $response;
     }

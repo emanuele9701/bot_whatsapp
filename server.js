@@ -14,6 +14,8 @@ async function request(url_request, data_post = {}, method = 'post') {
 
     return await axios({
         method: method,
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
         // url: "https://gmapsextractor.altervista.org/bot_whatsapp/api/api.php?a=" + request,
         url: url_request,
         data: params,
@@ -47,7 +49,8 @@ client.on('ready', async c => {
 
     console.log("Trovate " + chats.length + " chat");
 
-    sincronizza_chat(chats);
+    await sincronizza_chat(chats);
+    console.log("Scarico immagini");
     downloadImages();
 });
 
@@ -170,27 +173,21 @@ async function downloadImages() {
             mediaSend.push({
                 chats_id: element.chats_id,
                 messageId: element.message_id,
-                base64data: new Buffer.from(media.data).toString('base64')
+                base64data: media.data
             });
             writeSuccessLog(getDateitalianFormat() + " Scaricato media per " + element.message_id);
         }).catch(function(error) {
             writeErrorLog(getDateitalianFormat() + error + " - Errore nel download media per il messaggio: " + element.message_id);
         });
 
-        if (x == 0) {
-            continue;
-        }
-        var modRes = mediaSend.length % 5;
-        if (modRes == 0) {
-            writeSuccessLog("Preparo invio con ws " + url + '/chats/messages/saveImageMessage');
-            writeSendRequestLog("Salvo immagini: "+new Buffer.from(JSON.stringify(mediaSend)).toString('base64'));
-            await request(url + '/chats/messages/saveImageMessage', { data: new Buffer.from(JSON.stringify(mediaSend)).toString('base64') }).then(function(succes) {
-                writeSuccessLog("Inviati con successo!");
-            }).catch(function(error) {
-                writeErrorLog("Errore nell'invio. " + error);
-            });
-            mediaSend = new Array();
-        }
+        writeSuccessLog("Preparo invio con ws " + url + '/chats/messages/saveImageMessage');
+        writeSendRequestLog("Salvo immagini: " + JSON.stringify(mediaSend));
+        await request(url + '/chats/messages/saveImageMessage', { data: JSON.stringify(mediaSend) }).then(function(succes) {
+            writeSuccessLog("Inviati con successo!");
+        }).catch(function(error) {
+            writeErrorLog("Errore nell'invio. " + error);
+        });
+        mediaSend = new Array();
     }
 
 }
@@ -230,7 +227,7 @@ async function writeSuccessLog(stringa) {
 
 client.on('message', async msg => {
 
-    var msg = {
+    var msgSend = {
         fromMe: msg.fromMe,
         chats_id: msg.from,
         body: msg.body,
@@ -239,13 +236,35 @@ client.on('message', async msg => {
         message_id: msg.id._serialized,
         hasNewMex: 1
     }
-    let data = JSON.stringify(msg);
+    let data = JSON.stringify(msgSend);
     let buff = new Buffer.from(data);
     let base64data = buff.toString('base64');
-    request(url + "/chats/messages/insertNewMessage", { message: base64data }).catch(function(err) {
+    await request(url + "/chats/messages/insertNewMessage", { message: base64data }).catch(function(err) {
         console.log("Errore", err);
     }).then(function(ok) {
         console.log("Successo");
     });
+
+    if (msg.hasMedia) {
+        // Download media
+        var mediaFile = null;
+        await msg.downloadMedia().then(function(mediaScaricato) {
+            mediaFile = {
+                chats_id: msg.from,
+                messageId: msg.id._serialized,
+                base64data: mediaScaricato.data
+            }
+            writeSuccessLog("Salvataggio messaggio: Media scaricato");
+        }).catch(function(error) {
+            writeErrorLog("Salvataggio messaggio: Media non scaricato per " + error);
+        })
+        if (mediaFile != null) {
+            await request(url + '/chats/messages/saveImageMessage', { data: JSON.stringify(mediaFile) }).then(function(succes) {
+                writeSuccessLog("Salvataggio messaggio: Inviati con successo!");
+            }).catch(function(error) {
+                writeErrorLog("Salvataggio messaggio: Errore nell'invio. " + error);
+            });
+        }
+    }
 });
 // Procedi a filtrare le chat per archiviazione per mancata risposta - oppure filtra per dissenso all'offerta*/

@@ -8,6 +8,7 @@ use App\Models\Message;
 use App\Models\Response;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ChatMessagesController extends Controller
@@ -105,19 +106,38 @@ class ChatMessagesController extends Controller
     public function saveMessageImage(Request $request)
     {
         $imagesMessages = json_decode(str_replace("\\", "", $request->input('data')), true);
-        $stream64Image = base64_decode($imagesMessages[0]['base64data']);
-        $chats_id = base64_decode($imagesMessages[0]['chats_id']); // Chat a cui agganciare 
-        $message_id = base64_decode($imagesMessages[0]['messageId']); // Messaggio a cui agganciare l'immagine
-        if (!empty(MediaMessage::findFromMessageId($message_id))) {
+        if (isset($imagesMessages[0])) {
+            $message_id = $imagesMessages[0]['messageId']; // Messaggio a cui agganciare l'immagine
+            $bs64img = $imagesMessages[0]['base64data'];
+        } else {
+            $message_id = $imagesMessages['messageId']; // Messaggio a cui agganciare l'immagine
+            $bs64img = $imagesMessages['base64data'];
+        }
+        
+        // $chats_id = $imagesMessages[0]['chats_id']; // Chat a cui agganciare 
+        $messaggioCercato = MediaMessage::findFromMessageId($message_id);
+        if (!empty($messaggioCercato)) {
             return ['esito' => false, 'msg' => "Già inserita"];
         }
+        $findChat = DB::table("chat_messages")->where("message_id", '=', $message_id)->get()->toArray();
+        $chats_id = null;
+        if (!empty($findChat)) {
+            $chats_id = $findChat[0]->chats_id;
+        }
+
+        if ($chats_id == null) {
+            return response(json_encode(['esito' => false, 'msg' => "Chat non trovata"]), 500, ['Content-Type' => 'application/json']);
+        }
         $imageName = uniqid() . ".jpeg";
-        if (Storage::disk('local')->put($imageName, $stream64Image)) {
+        if (Storage::disk('local')->put($imageName, base64_decode($bs64img))) {
             $media = new MediaMessage();
             $media->name = uniqid() . ".jpeg";
             $media->message_id = $message_id;
             $media->chats_id = $chats_id;
             $media->save();
+
+            Message::where('message_id',$message_id)->update(['mediaFile' => $media->id,'hasMedia' => false]);
+
             return ['esito' => true, 'imamgine_id' => $media->id];
         }
         return ['esito' => false, 'msg' => "Errore"];
