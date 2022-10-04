@@ -61,17 +61,16 @@ class Chat extends Model
 
     public static function getAllMessages($chat_id)
     {
-        $mx = DB::table('chat_messages', 'cm')->join('chats', 'cm.chats_id', '=', 'chats.chats_id')->leftJoin("media_messages", 'media_messages.message_id', '=', 'cm.message_id')->where('chats.id', '=', $chat_id)->get(['cm.*', 'chats.updated_at', 'media_messages.name as nome_immagine']);
+        $mx = DB::table('chat_messages', 'cm')->join('chats', 'cm.chats_id', '=', 'chats.chats_id')->leftJoin("media_messages", 'media_messages.message_id', '=', 'cm.message_id')->where('chats.id', '=', $chat_id)->orderBy('cm.timestamp_message')->get(['cm.*', 'chats.updated_at', 'media_messages.name as nome_immagine']);
 
         foreach ($mx as $key => $m) {
             $mx[$key]->timestamp_message = date("Y-m-d H:i:s", $m->timestamp_message / 1000);
+            $mx[$key]->stream = null;
             if ($mx[$key]->nome_immagine != null) {
-                $mx[$key]->nome_immagine = env('APP_URL') . str_replace('storage/', 'storage/app/', Storage::url($mx[$key]->nome_immagine));
+                $mx[$key]->nome_immagine = $mx[$key]->nome_immagine;
+                $mx[$key]->stream = base64_encode(Storage::disk('local2')->get($mx[$key]->nome_immagine));
             }
         }
-        // echo "<pre>";
-        // var_dump($mx);
-        // die;
         return $mx;
     }
 }
