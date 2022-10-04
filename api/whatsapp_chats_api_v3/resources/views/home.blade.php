@@ -11,8 +11,14 @@
 
     <title>Home</title>
     <style>
-        .card {
+        .card_to {
             background-color: burlywood;
+            border: none;
+            margin: 1rem;
+        }
+
+        .card_from {
+            background-color: azure;
             border: none;
             margin: 1rem;
         }
