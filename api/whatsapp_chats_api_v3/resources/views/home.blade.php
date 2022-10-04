@@ -22,6 +22,7 @@
             border: none;
             margin: 1rem;
         }
+
         body {
             background-color: rgb(60, 60, 60);
         }
@@ -121,9 +122,11 @@
                 border-style: solid;
                 overflow:scroll;
                 overflow-x: hidden;
-                -webkit-overflow-scrolling: touch;">
+                -webkit-overflow-scrolling: touch;
+                display: flex;
+                flex-direction: column-reverse;">
 
-                <div class="messages" id="mex_list">
+                <div class="messages" id="mex_list" onload="scrollTo(0, 0);">
                     @isset($messages)
                         @if ($messages)
                             @foreach ($messages as $mex)
