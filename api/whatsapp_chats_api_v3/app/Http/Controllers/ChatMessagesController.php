@@ -129,7 +129,7 @@ class ChatMessagesController extends Controller
             return response(json_encode(['esito' => false, 'msg' => "Chat non trovata"]), 500, ['Content-Type' => 'application/json']);
         }
         $imageName = uniqid() . ".jpeg";
-        if (Storage::disk('local')->put($imageName, base64_decode($bs64img))) {
+        if (Storage::disk('local2')->put($imageName, base64_decode($bs64img))) {
             $media = new MediaMessage();
             $media->name = $imageName;
             $media->message_id = $message_id;
