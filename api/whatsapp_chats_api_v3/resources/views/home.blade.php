@@ -125,13 +125,13 @@
                                     @include('messages.message_from', [
                                         'text' => $mex->body,
                                         'data' => $mex->timestamp_message,
-                                        'image' => $mex->nome_immagine,
+                                        'image' => $mex->stream,
                                     ])
                                 @else
                                     @include('messages.message_me', [
                                         'text' => $mex->body,
                                         'data' => $mex->timestamp_message,
-                                        'image' => $mex->nome_immagine,
+                                        'image' => $mex->stream,
                                     ])
                                 @endif
                             @endforeach
