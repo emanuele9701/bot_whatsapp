@@ -32,5 +32,6 @@ Route::middleware([LogRoute::class])->group(function () use ($router) {
             Route::get('all/{idChat}', [ChatMessagesController::class, 'all']);
             Route::post('saveImageMessage', [ChatMessagesController::class, 'saveMessageImage']);
         });
+        Route::get('search/{what?}',[ChatsController::class,'search_chat'])->name('search_chat');
     });
 });

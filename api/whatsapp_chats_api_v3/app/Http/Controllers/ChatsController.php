@@ -17,6 +17,12 @@ class ChatsController extends BaseController
     {
     }
 
+    public function search_chat($what = "") {
+        $chats = Chat::whereLike($what);
+
+        return $chats;
+    }
+
     public function checkChats(Request $request)
     {
         $chats = json_decode(base64_decode($request->input('chats')), true);

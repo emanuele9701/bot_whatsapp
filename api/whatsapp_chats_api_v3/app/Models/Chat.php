@@ -21,9 +21,30 @@ class Chat extends Model
         }
     }
 
-    public static function allChats($sort = "asc")
+    public static function allChats($with = false, $sort = "asc")
     {
-        $chats = DB::table("chats", "c")->join("chat_messages", "c.chats_id", "=", "chat_messages.chats_id")->where("body", '!=', "")->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id', 'c.*', 'chat_messages.*']);
+        $chats = DB::table("chats", "c")->join("chat_messages", "c.chats_id", "=", "chat_messages.chats_id")->where("body", '!=', "")->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id', 'c.*', 'chat_messages.*'])->toArray();
+
+        $addChats = [];
+        if($with !== false) {
+            $addChats = DB::table("chats", "c")->join("chat_messages", "c.chats_id", "=", "chat_messages.chats_id")->where("c.id", '=', $with)->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id', 'c.*', 'chat_messages.*'])->toArray();
+        }
+
+        if(!empty($addChats)) {
+            $chats = array_merge($chats,$addChats);
+        }
+
+
+        foreach ($chats as $k => $chat) {
+            $chats[$k]->timestamp_message = date("Y-m-d H:i:s", $chat->timestamp_message / 1000);
+        }
+
+        return $chats;
+    }
+
+    public static function whereLike($what)
+    {
+        $chats = DB::table("chats", "c")->join("chat_messages", "c.chats_id", "=", "chat_messages.chats_id")->where("body", '!=', "")->where('c.name', 'like', "%$what%")->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id', 'c.*', 'chat_messages.*']);
         foreach ($chats as $k => $chat) {
             $chats[$k]->timestamp_message = date("Y-m-d H:i:s", $chat->timestamp_message / 1000);
         }

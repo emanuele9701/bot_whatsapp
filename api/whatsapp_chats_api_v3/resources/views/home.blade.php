@@ -83,7 +83,7 @@
     </style>
 </head>
 
-<body style="overflow: hidden">
+<body style="overflow: hidden" id="app">
     <div class="container" style="margin: 1rem; max-width: 98%;">
         <div class="row">
             <div class="col-md" style="max-width: 25%;">
@@ -101,7 +101,8 @@
                 margin-bottom: 10px;
                 overflow:scroll;
                 overflow-x: hidden;
-                -webkit-overflow-scrolling: touch;">
+                -webkit-overflow-scrolling: touch;"
+                    id="chatList">
                     @foreach ($messageList as $message)
                         {{-- @dump($message) --}}
                         <a class="list-group-item list-group-item-action flex-column align-items-start"
@@ -168,8 +169,35 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"
         integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
     <script>
         let currentChat = 0;
+
+        $("#search_contact").on('keypress', function(e) {
+            if (e.which === 13 && $(this).val().length >= 5) {
+                //Ricerca
+                $.ajax({
+                    url: "{{ route('search_chat') }}/" + $(this).val(),
+                    method: 'get',
+                    dataType: 'json',
+                    success: function(rs) {
+                        $("#chatList").html("");
+
+                        rs.forEach(chat => {
+                            $("#chatList").append('<a class="list-group-item list-group-item-action flex-column align-items-start" href="'+"{{ route('show_chat') }}"+'/'+chat.chat_id+'">' +
+                            '<div class="d-flex w-100 justify-content-between">' +
+                            '<h5 class="mb-1">'+chat.name+'</h5>' +
+                            '<small class="text-muted">'+chat.timestamp_message+'</small>' +
+                            '</div>' +
+                            '<p class="mb-1">'+chat.body+'</p>' +
+                            '</a>')
+                        });
+                    }
+                })
+            }
+        })
+
 
         function openChat(idChat) {
             currentChat = idChat;
@@ -182,6 +210,7 @@
                 }
             })
         }
+
         @isset($messages)
             function sendMessage() {
                 var mx = $("#makedMessage").val();

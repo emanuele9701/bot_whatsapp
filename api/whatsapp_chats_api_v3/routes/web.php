@@ -26,10 +26,10 @@ Route::prefix('home')->group(function () {
         ]);
     })->name('home');
 
-    Route::get('/{chat_id}', function ($chat_id) {
+    Route::get('/{chat_id?}', function ($chat_id) {
         // Recupero le chat
         $search_chat = Chat::getAllMessages($chat_id);
-        $chat = Chat::allChats();
+        $chat = Chat::allChats($chat_id);
         return view('home', [
             'messageList' => $chat,
             'messages' => $search_chat,
