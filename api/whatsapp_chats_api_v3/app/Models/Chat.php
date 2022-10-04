@@ -23,7 +23,7 @@ class Chat extends Model
 
     public static function allChats($sort = "asc")
     {
-        $chats = DB::table("chats", "c")->join("chat_messages", "c.chats_id", "=", "chat_messages.chats_id")->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id', 'c.*', 'chat_messages.*']);
+        $chats = DB::table("chats", "c")->join("chat_messages", "c.chats_id", "=", "chat_messages.chats_id")->where("body", '!=', "")->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id', 'c.*', 'chat_messages.*']);
         foreach ($chats as $k => $chat) {
             $chats[$k]->timestamp_message = date("Y-m-d H:i:s", $chat->timestamp_message / 1000);
         }
