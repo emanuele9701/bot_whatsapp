@@ -10,3 +10,4 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+api/whatsapp_chats_api_v3/node_modules/*

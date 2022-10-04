@@ -21,7 +21,7 @@ Route::prefix('home')->group(function () {
         $chat = Chat::allChats();
         // echo "<pre>";
         // var_dump($chat);die;
-        return view('home', [
+        return view('home2', [
             'messageList' => $chat
         ]);
     })->name('home');
