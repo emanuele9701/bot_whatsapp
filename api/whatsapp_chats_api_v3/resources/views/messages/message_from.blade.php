@@ -1,6 +1,6 @@
 @if ($image != null)
     <div class="row messagge_from">
-        <div class="card card_from" style="width: auto;">
+        <div class="card card_from" style="width: 95% !important;">
             <img class="card-img-top" src="data:image/jpeg;base64, {{ $image }}" style="width: 250px !important;">
             <div class="card-body">
                 <p class="card-text">{{ $text }}</p>
