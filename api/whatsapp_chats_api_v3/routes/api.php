@@ -33,5 +33,6 @@ Route::middleware([LogRoute::class])->group(function () use ($router) {
             Route::post('saveImageMessage', [ChatMessagesController::class, 'saveMessageImage']);
         });
         Route::get('search/{what?}',[ChatsController::class,'search_chat'])->name('search_chat');
+        Route::post('renameChats',[ChatsController::class,'renameChats'])->name('rinomina_chat');
     });
 });

@@ -17,10 +17,22 @@ class ChatsController extends BaseController
     {
     }
 
-    public function search_chat($what = "") {
+    public function search_chat($what = "")
+    {
         $chats = Chat::whereLike($what);
 
         return $chats;
+    }
+
+    public function renameChats(Request $request)
+    {
+        $chatsJson = $request->input('chat');
+
+        $chats = json_decode($chatsJson, true);
+        foreach ($chats as $chat) {
+            Chat::where('chats_id', $chat['id_chat'])->update(['name' => $chat['new_name']]);
+        }
+        return ['result' => 'ok'];
     }
 
     public function checkChats(Request $request)
@@ -36,7 +48,7 @@ class ChatsController extends BaseController
             } else {
                 $return[] = ['chat' => $chat['chats_id']];
             }
-        }   
+        }
 
         return $return;
     }
