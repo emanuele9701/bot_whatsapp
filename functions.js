@@ -1,5 +1,6 @@
 const url = "http://localhost/bot_whatsapp/api/whatsapp_chats_api_v3/public/index.php/api";
 const axios = require("axios/index.js");
+const fs = require('fs');
 async function request(url_request, data_post = {}, method = 'post') {
 
     const params = new URLSearchParams();
@@ -74,10 +75,10 @@ async function sincronizza_chat(chats) {
             }
         });
     }
-
+    writeSuccessLog("Controllo chats");
     var h = Buffer.from(JSON.stringify(listChats));
 
-    await extraFunctions.request(url + "/chats/checkChats", { chats: h.toString('base64') }).then((res) => {
+    await request(url + "/chats/checkChats", { chats: h.toString('base64') }).then((res) => {
         if (res.data.length <= 0) {
             console.log("Non ha aggiunto nessuna chat, chat totali da aggiungere: " + listChats.length);
         } else {
@@ -88,7 +89,7 @@ async function sincronizza_chat(chats) {
         console.log(err);
     })
 
-    await extraFunctions.request(url + "/chats/messages/insertMultiNewMessage", { message: Buffer.from(JSON.stringify(listMessage)).toString('base64') }).then((res) => {
+    await request(url + "/chats/messages/insertMultiNewMessage", { message: Buffer.from(JSON.stringify(listMessage)).toString('base64') }).then((res) => {
         if (res.data.esito == true) {
             console.log("Messaggio aggiunto");
         } else {
@@ -98,16 +99,17 @@ async function sincronizza_chat(chats) {
         console.log("Errore nell'aggiunta del mex");
         console.log(err);
     })
+    return true;
 }
 
 
-async function downloadImages() {
+async function downloadImages(chats) {
 
-    var messageId = await extraFunctions.request(url + "/chats/messages/getMessageImage", {}, 'get').then(function(ok) {
-        extraFunctions.writeSuccessLog("Recuperati " + ok.data.length + " messaggi da analizzare");
+    var messageId = await request(url + "/chats/messages/getMessageImage", {}, 'get').then(function(ok) {
+        writeSuccessLog("Recuperati " + ok.data.length + " messaggi da analizzare");
         return ok.data;
     }).catch(function(e) {
-        extraFunctions.writeErrorLog("Errore recupero messaggi da analizzare " + e);
+        writeErrorLog("Errore recupero messaggi da analizzare " + e);
         return null;
     })
     if (messageId == null) {
@@ -118,18 +120,18 @@ async function downloadImages() {
     for (let idy = 0; idy < messageId.length; idy++) {
         var mediaSend = new Array();
         const id = messageId[idy];
-        extraFunctions.writeSuccessLog("Processo chat: " + id.chats_id);
-        var c = extraFunctions.getChatById(id.chats_id);
+        writeSuccessLog("Processo chat: " + id.chats_id);
+        var c = getChatById(id.chats_id,chats);
         if (c == null) {
-            extraFunctions.writeErrorLog("Chat non trovata, chat id: " + id.chats_id);
+            writeErrorLog("Chat non trovata, chat id: " + id.chats_id);
             continue;
         }
         await c.fetchMessages({ limit: 1000 }).then(function(messaggi) {
-            extraFunctions.writeSuccessLog("Recuperati: " + messaggi.length);
+            writeSuccessLog("Recuperati: " + messaggi.length);
             messaggi.forEach(function(messaggio) {
-                extraFunctions.writeSuccessLog("Cerco messaggio: " + id.message_id);
+                writeSuccessLog("Cerco messaggio: " + id.message_id);
                 if (messaggio.id._serialized == id.message_id) {
-                    extraFunctions.writeSuccessLog("Trovato, scarico i media");
+                    writeSuccessLog("Trovato, scarico i media");
                     // Scarico i media
                     mediaToDownload.push({
                         chat_id: id.chats_id,
@@ -139,31 +141,31 @@ async function downloadImages() {
                 }
             });
         }).catch(function(error) {
-            extraFunctions.writeErrorLog(extraFunctions.getDateitalianFormat() + error + " - Errore nel recupero messaggi per la chat: " + id.chats_id);
+            writeErrorLog(getDateitalianFormat() + error + " - Errore nel recupero messaggi per la chat: " + id.chats_id);
         });
     }
 
     for (let x = 0; x < mediaToDownload.length; x++) {
         const element = mediaToDownload[x];
         var messaggio = element.ws_messaggio;
-        extraFunctions.writeSuccessLog("Scarico media per " + element.message_id);
+        writeSuccessLog("Scarico media per " + element.message_id);
         await messaggio.downloadMedia().then(function(media) {
             mediaSend.push({
                 chats_id: element.chats_id,
                 messageId: element.message_id,
                 base64data: media.data
             });
-            extraFunctions.writeSuccessLog(extraFunctions.getDateitalianFormat() + " Scaricato media per " + element.message_id);
+            writeSuccessLog(getDateitalianFormat() + " Scaricato media per " + element.message_id);
         }).catch(function(error) {
-            extraFunctions.writeErrorLog(extraFunctions.getDateitalianFormat() + error + " - Errore nel download media per il messaggio: " + element.message_id);
+            writeErrorLog(getDateitalianFormat() + error + " - Errore nel download media per il messaggio: " + element.message_id);
         });
 
-        extraFunctions.writeSuccessLog("Preparo invio con ws " + url + '/chats/messages/saveImageMessage');
-        extraFunctions.writeSendRequestLog("Salvo immagini: " + JSON.stringify(mediaSend));
-        await extraFunctions.request(url + '/chats/messages/saveImageMessage', { data: JSON.stringify(mediaSend) }).then(function(succes) {
-            extraFunctions.writeSuccessLog("Inviati con successo!");
+        writeSuccessLog("Preparo invio con ws " + url + '/chats/messages/saveImageMessage');
+        writeSendRequestLog("Salvo immagini: " + JSON.stringify(mediaSend));
+        await request(url + '/chats/messages/saveImageMessage', { data: JSON.stringify(mediaSend) }).then(function(succes) {
+            writeSuccessLog("Inviati con successo!");
         }).catch(function(error) {
-            extraFunctions.writeErrorLog("Errore nell'invio. " + error);
+            writeErrorLog("Errore nell'invio. " + error);
         });
         mediaSend = new Array();
     }
@@ -188,7 +190,7 @@ async function salvaMessaggio(msg) {
     let data = JSON.stringify(msgSend);
     let buff = new Buffer.from(data);
     let base64data = buff.toString('base64');
-    await extraFunctions.request(url + "/chats/messages/insertNewMessage", { message: base64data }).catch(function(err) {
+    await request(url + "/chats/messages/insertNewMessage", { message: base64data }).catch(function(err) {
         console.log("Errore", err);
     }).then(function(ok) {
         console.log("Successo");
@@ -203,15 +205,15 @@ async function salvaMessaggio(msg) {
                 messageId: msg.id._serialized,
                 base64data: mediaScaricato.data
             }
-            extraFunctions.writeSuccessLog("Salvataggio messaggio: Media scaricato");
+            writeSuccessLog("Salvataggio messaggio: Media scaricato");
         }).catch(function(error) {
-            extraFunctions.writeErrorLog("Salvataggio messaggio: Media non scaricato per " + error);
+            writeErrorLog("Salvataggio messaggio: Media non scaricato per " + error);
         })
         if (mediaFile != null) {
-            await extraFunctions.request(url + '/chats/messages/saveImageMessage', { data: JSON.stringify(mediaFile) }).then(function(succes) {
-                extraFunctions.writeSuccessLog("Salvataggio messaggio: Inviati con successo!");
+            await request(url + '/chats/messages/saveImageMessage', { data: JSON.stringify(mediaFile) }).then(function(succes) {
+                writeSuccessLog("Salvataggio messaggio: Inviati con successo!");
             }).catch(function(error) {
-                extraFunctions.writeErrorLog("Salvataggio messaggio: Errore nell'invio. " + error);
+                writeErrorLog("Salvataggio messaggio: Errore nell'invio. " + error);
             });
         }
     }
@@ -229,7 +231,7 @@ function getDateitalianFormat() {
     return day + "/" + month + "/" + year + " " + hour + ":" + minutes + ":" + seconds;
 }
 
-function getChatById(idChat) {
+function getChatById(idChat,chats) {
     var chatSearched = null;
     chats.forEach(chat => {
         if (chat.id._serialized == idChat) {

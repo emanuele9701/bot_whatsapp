@@ -2,7 +2,7 @@ const { Client, Location, List, Buttons, LocalAuth, Message } = require('./node_
 
 const url = "http://localhost/bot_whatsapp/api/whatsapp_chats_api_v3/public/index.php/api";
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
-const fs = require('fs');
+
 const extraFunctions = require('./functions');
 
 const client = new Client({
@@ -33,7 +33,7 @@ client.on('ready', async c => {
     await extraFunctions.sincronizza_chat(chats);
 
     console.log("Scarico immagini");
-    extraFunctions.downloadImages();
+    extraFunctions.downloadImages(chats);
 });
 
 client.on('message_create', async msg => {
