@@ -22,7 +22,8 @@ Route::prefix('home')->group(function () {
         // echo "<pre>";
         // var_dump($chat);die;
         return view('home2', [
-            'messageList' => $chat
+            'messageList' => $chat,
+            'pippo'=>'piipo'
         ]);
     })->name('home');
 

@@ -1,16 +1,9 @@
-@if ($image != null)
-    <div class="row messagge_from">
-        <div class="card card_from" style="width: 95% !important;">
-            <img class="card-img-top" src="data:image/jpeg;base64, {{ $image }}" style="width: 250px !important;">
-            <div class="card-body">
-                <p class="card-text">{{ $text }}</p>
-                <small class="info-data-me">{{ $data }}</small>
-            </div>
+<div class="row messagge_from" v-for="message in messages_from">
+    <div class="card card_from" style="width: 18rem;">
+        <img v-if="message.image" class="card-img-top" :src="'data:image/jpeg;base64,'+message.image" style="width: 250px !important;">
+        <div class="card-body">
+            <p class="card-text">@{{ message.text }}</p>
+            <small class="info-data-me">@{{ message.data }}</small>
         </div>
     </div>
-@else
-    <div class="row messagge_from">
-        <p class=".text-data-from">{{ $text }}</p>
-        <small class="info-data-from">{{ $data }}</small>
-    </div>
-@endif
+</div>

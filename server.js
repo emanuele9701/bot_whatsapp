@@ -15,7 +15,6 @@ var listChatsMessage = new Array();
 client.initialize();
 
 client.on('qr', (qr) => {
-    // NOTE: This event will not be fired if a session is specified.
     console.log('QR RECEIVED', qr);
 });
 
