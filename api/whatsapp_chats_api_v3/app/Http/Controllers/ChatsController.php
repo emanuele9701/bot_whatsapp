@@ -25,7 +25,7 @@ class ChatsController extends BaseController
     }
 
     public function listChats() {
-        $chat = Chat::allChats(1);
+        $chat = Chat::allChats();
         
         return $chat;
     }

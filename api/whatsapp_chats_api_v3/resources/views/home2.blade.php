@@ -98,15 +98,15 @@
 </head>
 
 <body class="antialiased">
-    <div id="app">
+    <div id="app" style="margin: 1rem;">
 
         <div class="row">
             <div class="col-md" style="max-width: 25%;">
                 <div class="row">
                     <div class="col-xl" style="margin-bottom: 1rem; position: left;margin-right: 30%">
                         <div class="form-group">
-                            <input type="text" name="search_contact" id="search_contact" class="form-control"
-                                placeholder="Ricerca chat" aria-describedby="helpId">
+                            <input type="text" class="form-control" placeholder="Ricerca chat"
+                                aria-describedby="helpId" v-model="textSearch" v-on:keyup.enter="search">
                         </div>
                     </div>
                 </div>
@@ -136,7 +136,7 @@
                     <div class="row" v-for="message in messages">
                         <div v-if="message.fromMe">
                             <div class="card card_to" style="width: 20%;" v-if="message.stream">
-                                <img class="card-img-top"  :src="'data:image/jpeg;base64,' + message.stream"
+                                <img class="card-img-top" :src="'data:image/jpeg;base64,' + message.stream"
                                     style="width: auto;">
                                 <div class="card-body" style="width: 100%;">
                                     <p class="card-text">@{{ message.body }}</p>
@@ -197,7 +197,9 @@
             data() {
                 return {
                     messages: [],
-                    listaChat: []
+                    listaChat: [],
+                    backupListaChat: [],
+                    textSearch: "",
                 }
             },
             methods: {
@@ -205,11 +207,31 @@
                     axios.get("{{ route('list_all_messages') }}/" + chat_id).then(result => {
                         this.messages = result.data;
                     });
+                },
+                search() {
+                    var chatSearched = new Array();
+                    this.listaChat = this.backupListaChat;
+                    if (this.textSearch.length > 0) {
+                        this.listaChat.forEach(chat => {
+                            if (chat.name.indexOf(this.textSearch) > -1) {
+                                chatSearched.push(chat);
+                            }
+                        });
+                        if (chatSearched.length < 1) {
+                            // Ricerco nel db
+                            axios.get("{{ route('search_chat') }}/" + this.textSearch).then(result => {
+                                this.listaChat = result.data;
+                            });
+                        } else {
+                            this.listaChat = chatSearched;
+                        }
+                    }
                 }
             },
             mounted() {
                 axios.get("{{ route('list_all_chats') }}").then(result => {
                     this.listaChat = result.data;
+                    this.backupListaChat = this.listaChat;
                 });
                 // $.ajax({
                 //     url:"{{ route('list_all_chats') }}",
