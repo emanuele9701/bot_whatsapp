@@ -24,13 +24,9 @@ class Chat extends Model
     public static function allChats($with = false, $sort = "asc")
     {
         $chats = DB::table("chats", "c")->join("chat_messages", "c.chats_id", "=", "chat_messages.chats_id")->where("body", '!=', "")->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id', 'c.*', 'chat_messages.*'])->toArray();
-
         $addChats = [];
         if ($with !== false) {
             $addChats = DB::table("chats", "c")->join("chat_messages", "c.chats_id", "=", "chat_messages.chats_id")->where("c.id", '=', $with)->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id', 'c.*', 'chat_messages.*'])->toArray();
-        }
-
-        if (!empty($addChats)) {
             $chats = array_merge($chats, $addChats);
         }
 
@@ -82,7 +78,7 @@ class Chat extends Model
 
     public static function getAllMessages($chat_id)
     {
-        $mx = DB::table('chat_messages', 'cm')->join('chats', 'cm.chats_id', '=', 'chats.chats_id')->leftJoin("media_messages", 'media_messages.message_id', '=', 'cm.message_id')->where('chats.id', '=', $chat_id)->orderBy('cm.timestamp_message')->get(['cm.*', 'chats.updated_at', 'media_messages.name as nome_immagine']);
+        $mx = DB::table('chat_messages', 'cm')->join('chats', 'cm.chats_id', '=', 'chats.chats_id')->leftJoin("media_messages", 'media_messages.message_id', '=', 'cm.message_id')->where("body", "!=", "")->where('chats.id', '=', $chat_id)->orderBy('cm.timestamp_message')->get(['cm.*', 'chats.updated_at', 'media_messages.name as nome_immagine']);
 
         foreach ($mx as $key => $m) {
             $mx[$key]->timestamp_message = date("Y-m-d H:i:s", $m->timestamp_message / 1000);
