@@ -22,6 +22,14 @@ class ChatMessagesController extends Controller
     {
     }
 
+    public function listMessages($id_chat)
+    {
+        if (empty($id_chat)) {
+            return ['esito' => false, 'msg' => "No chat id"];
+        }
+        return Chat::getAllMessages($id_chat);
+    }
+
     public function all($idChat)
     {
         $allMex = Chat::getChatsLastMessagge($idChat);
@@ -113,7 +121,7 @@ class ChatMessagesController extends Controller
             $message_id = $imagesMessages['messageId']; // Messaggio a cui agganciare l'immagine
             $bs64img = $imagesMessages['base64data'];
         }
-        
+
         // $chats_id = $imagesMessages[0]['chats_id']; // Chat a cui agganciare 
         $messaggioCercato = MediaMessage::findFromMessageId($message_id);
         if (!empty($messaggioCercato)) {
@@ -136,7 +144,7 @@ class ChatMessagesController extends Controller
             $media->chats_id = $chats_id;
             $media->save();
 
-            Message::where('message_id',$message_id)->update(['mediaFile' => $media->id,'hasMedia' => false]);
+            Message::where('message_id', $message_id)->update(['mediaFile' => $media->id, 'hasMedia' => false]);
 
             return ['esito' => true, 'imamgine_id' => $media->id];
         }

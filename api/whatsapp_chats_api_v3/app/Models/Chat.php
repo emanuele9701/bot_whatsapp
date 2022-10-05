@@ -26,12 +26,12 @@ class Chat extends Model
         $chats = DB::table("chats", "c")->join("chat_messages", "c.chats_id", "=", "chat_messages.chats_id")->where("body", '!=', "")->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id', 'c.*', 'chat_messages.*'])->toArray();
 
         $addChats = [];
-        if($with !== false) {
+        if ($with !== false) {
             $addChats = DB::table("chats", "c")->join("chat_messages", "c.chats_id", "=", "chat_messages.chats_id")->where("c.id", '=', $with)->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id', 'c.*', 'chat_messages.*'])->toArray();
         }
 
-        if(!empty($addChats)) {
-            $chats = array_merge($chats,$addChats);
+        if (!empty($addChats)) {
+            $chats = array_merge($chats, $addChats);
         }
 
 

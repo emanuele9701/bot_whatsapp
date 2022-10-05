@@ -24,6 +24,12 @@ class ChatsController extends BaseController
         return $chats;
     }
 
+    public function listChats() {
+        $chat = Chat::allChats(1);
+        
+        return $chat;
+    }
+
     public function renameChats(Request $request)
     {
         $chatsJson = $request->input('chat');

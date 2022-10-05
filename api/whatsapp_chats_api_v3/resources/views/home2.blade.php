@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Laravel</title>
+    <title>Home</title>
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
@@ -17,6 +17,7 @@
             background-color: burlywood;
             border: none;
             margin: 1rem;
+            width: 93%;
         }
 
         .card_from {
@@ -27,6 +28,8 @@
 
         body {
             background-color: rgb(60, 60, 60);
+            font-family: 'Nunito', sans-serif;
+            overflow-x: hidden;
         }
 
         .messagge_me {
@@ -80,18 +83,22 @@
         }
 
         .list_message {
-            max-height: 2000px
-        }
-    </style>
-    <style>
-        body {
-            font-family: 'Nunito', sans-serif;
+            margin-top: 3.4rem;
+            max-height: 800px;
+            max-width: 1430px;
+            border-style: solid;
+            overflow: scroll;
+            overflow-x: hidden;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            display: flex;
+            flex-direction: column-reverse;
         }
     </style>
 </head>
 
 <body class="antialiased">
-    <div class="container" id="app">
+    <div id="app">
 
         <div class="row">
             <div class="col-md" style="max-width: 25%;">
@@ -105,15 +112,16 @@
                 </div>
                 <div class="list-group"
                     style="max-height: 866px;
+                    height: 100%;
                     border-style: solid;
                 margin-bottom: 10px;
                 overflow:scroll;
                 overflow-x: hidden;
                 -webkit-overflow-scrolling: touch;"
                     id="chatList">
-                    <a v-for="chat in messageList"
+                    <a v-for="chat in listaChat"
                         class="list-group-item list-group-item-action flex-column align-items-start"
-                        :href="'{{ route('show_chat') }}/' + chat.chat_id">
+                        v-on:click="openChat(chat.chat_id)">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">@{{ chat.name }}</h5>
                             <small class="text-muted">@{{ chat.timestamp_message }}</small>
@@ -122,20 +130,51 @@
                     </a>
                 </div>
             </div>
-            <div class="col-xl list_message"
-                style="margin-top: 3.4rem;
-                max-height: 800px;
-                max-width: 100%;
-                border-style: solid;
-                overflow:scroll;
-                overflow-x: hidden;
-                -webkit-overflow-scrolling: touch;
-                display: flex;
-                flex-direction: column-reverse;">
+            <div class="col-xl list_message">
 
                 <div class="messages" id="mex_list" onload="scrollTo(0, 0);">
-                    @include('messages.message_from')
-                    @include('messages.message_me')
+                    <div class="row" v-for="message in messages">
+                        <div v-if="message.fromMe">
+                            <div class="card card_to" style="width: 20%;" v-if="message.stream">
+                                <img class="card-img-top"  :src="'data:image/jpeg;base64,' + message.stream"
+                                    style="width: auto;">
+                                <div class="card-body" style="width: 100%;">
+                                    <p class="card-text">@{{ message.body }}</p>
+                                    <small class="info-data-me">@{{ message.timestamp_message }}</small>
+                                </div>
+                            </div>
+                            <div v-else class="row message_from"
+                                style="background-color: burlywood;
+                            width: 30%;
+                            margin-right: 70%;
+                            margin-top: 1rem;
+                            margin-left: 1rem;
+                            border-radius: 25px;">
+                                <p class="text-data-me">@{{ message.body }}</p>
+                                <small class="info-data-me">@{{ message.timestamp_message }}</small>
+                            </div>
+                        </div>
+                        <div v-else-if="!message.fromMe"
+                            style="background-color: azure;
+                        width: 30%;
+                        margin-left: 68%;
+                        margin-top: 1rem;
+                        margin-right: 1rem;
+                        border-radius: 25px;">
+                            <div class="card card_from" style="width: 18rem;" v-if="message.stream">
+                                <img class="card-img-top" :src="'data:image/jpeg;base64,' + message.stream"
+                                    style="width: 250px !important;">
+                                <div class="card-body" style="width: 100%;">
+                                    <p class="card-text">@{{ message.body }}</p>
+                                    <small class="info-data-from">@{{ message.timestamp_message }}</small>
+                                </div>
+                            </div>
+                            <div v-else-if="!message.stream">
+                                <p class="text-data-from">@{{ message.body }}</p>
+                                <small class="info-data-from">@{{ message.timestamp_message }}</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -148,6 +187,7 @@
         integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script>
         const {
             createApp
@@ -156,12 +196,31 @@
         createApp({
             data() {
                 return {
-                    message: 'Hello Vue!',
-                    messages_from: [],
-                    messages_to: [],
-                    messageList: []
+                    messages: [],
+                    listaChat: []
                 }
-            }
+            },
+            methods: {
+                openChat(chat_id) {
+                    axios.get("{{ route('list_all_messages') }}/" + chat_id).then(result => {
+                        this.messages = result.data;
+                    });
+                }
+            },
+            mounted() {
+                axios.get("{{ route('list_all_chats') }}").then(result => {
+                    this.listaChat = result.data;
+                });
+                // $.ajax({
+                //     url:"{{ route('list_all_chats') }}",
+                //     async: false,
+                //     method:'get',
+                //     lista_chat = result.data;
+                //     result: function (result) {
+
+                //     }
+                // })
+            },
         }).mount('#app');
     </script>
 </body>
