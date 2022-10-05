@@ -79,7 +79,7 @@ class Chat extends Model
     public static function getAllMessages($chat_id)
     {
         $mx = DB::table('chat_messages', 'cm')->join('chats', 'cm.chats_id', '=', 'chats.chats_id')->leftJoin("media_messages", 'media_messages.message_id', '=', 'cm.message_id')->where("body", "!=", "")->where('chats.id', '=', $chat_id)->orderBy('cm.timestamp_message')->get(['cm.*', 'chats.updated_at', 'media_messages.name as nome_immagine']);
-
+        
         foreach ($mx as $key => $m) {
             $mx[$key]->timestamp_message = date("Y-m-d H:i:s", $m->timestamp_message / 1000);
             $mx[$key]->stream = null;
@@ -88,6 +88,7 @@ class Chat extends Model
                 $mx[$key]->stream = base64_encode(Storage::disk('local2')->get($mx[$key]->nome_immagine));
             }
         }
+        
         return $mx;
     }
 }

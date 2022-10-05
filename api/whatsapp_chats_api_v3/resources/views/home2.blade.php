@@ -178,6 +178,14 @@
                 </div>
             </div>
 
+            <div class="row module_send">
+                <div class="col col-11">
+                    <textarea id="makedMessage" v-model="textResponseChat" style="width: 100%;" class="form-control"></textarea>
+                </div>
+                <div class="col col-1">
+                    <button class="btn btn-primary" v-on:click="sendMessage">Invia</button>
+                </div>
+            </div>
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
@@ -200,12 +208,27 @@
                     listaChat: [],
                     backupListaChat: [],
                     textSearch: "",
+                    textResponseChat: "",
+                    chat_selected: 0
                 }
             },
             methods: {
                 openChat(chat_id) {
                     axios.get("{{ route('list_all_messages') }}/" + chat_id).then(result => {
                         this.messages = result.data;
+                    });
+                    this.chat_selected = chat_id;
+                },
+                sendMessage() {
+                    axios.post("{{ route('responseMessage') }}", {
+                        chat_id: this.chat_selected,
+                        message: this.textResponseChat
+                    }).then(function(response) {
+                        if(response.esito == true) {
+                            openChat(this.chat_selected);
+                        }
+                    }).catch(function(error) {
+                        console.log(error);
                     });
                 },
                 search() {
