@@ -11,8 +11,9 @@ yarn-error.log
 /.idea
 /.vscode
 
-.env
+package-lock.json
+node_modules
 storage/*.sqlite
 public/D:*
 vendor
-package.lock
+.env

@@ -76,7 +76,7 @@ async function sincronizza_chat(chats) {
             }
         });
     }
-
+    writeSuccessLog("Controllo chats");
     var h = Buffer.from(JSON.stringify(listChats));
 
     await request(url + "/chats/checkChats", { chats: h.toString('base64') }).then((res) => {
@@ -100,6 +100,7 @@ async function sincronizza_chat(chats) {
         console.log("Errore nell'aggiunta del mex");
         console.log(err);
     })
+    return true;
 }
 
 

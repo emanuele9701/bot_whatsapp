@@ -1,7 +1,7 @@
 const QRCode = require('qrcode')
 const { Client, Location, List, Buttons, LocalAuth, Message } = require('./node_modules/whatsapp-web.js/index');
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
-const fs = require('fs');
+
 const extraFunctions = require('./functions');
 
 const client = new Client({
