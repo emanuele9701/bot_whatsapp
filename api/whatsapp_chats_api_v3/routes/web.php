@@ -26,17 +26,6 @@ Route::prefix('home')->group(function () {
             'pippo'=>'piipo'
         ]);
     })->name('home');
-
-    // Route::get('/{chat_id?}', function ($chat_id) {
-    //     // Recupero le chat
-    //     $search_chat = Chat::getAllMessages($chat_id);
-    //     $chat = Chat::allChats($chat_id);
-    //     return view('home', [
-    //         'messageList' => $chat,
-    //         'messages' => $search_chat,
-    //         'chat_id' => $chat_id
-    //     ]);
-    // })->name('show_chat');
 });
 
 
