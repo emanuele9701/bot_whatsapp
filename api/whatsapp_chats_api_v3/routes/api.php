@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ChatMessagesController;
 use App\Http\Controllers\ChatsController;
+use App\Http\Controllers\ResponseMessageController;
 use App\Http\Middleware\LogRoute;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -31,10 +32,14 @@ Route::middleware([LogRoute::class])->group(function () use ($router) {
             Route::get('getMessageImage', [ChatMessagesController::class, 'getMessageImage']);
             Route::get('all/{idChat}', [ChatMessagesController::class, 'all']);
             Route::post('saveImageMessage', [ChatMessagesController::class, 'saveMessageImage']);
-            Route::get("listMessages/{id_chat?}",[ChatMessagesController::class, 'listMessages'])->name("list_all_messages");
+            Route::get("listMessages/{id_chat?}", [ChatMessagesController::class, 'listMessages'])->name("list_all_messages");
         });
-        Route::get('search/{what?}',[ChatsController::class,'search_chat'])->name('search_chat');
-        Route::post('renameChats',[ChatsController::class,'renameChats'])->name('rinomina_chat');
-        Route::get("listChats",[ChatsController::class, 'listChats'])->name("list_all_chats");
+        Route::get('search/{what?}', [ChatsController::class, 'search_chat'])->name('search_chat');
+        Route::post('renameChats', [ChatsController::class, 'renameChats'])->name('rinomina_chat');
+        Route::get("listChats", [ChatsController::class, 'listChats'])->name("list_all_chats");
+    });
+    Route::group(['prefix' => "response"], function () use ($router) {
+        Route::get("getListMessages", [ResponseMessageController::class, 'getListMessages'])->name('list_messages_to_send');
+        Route::post("setSended", [ResponseMessageController::class, 'setSended'])->name('flag_sended_mex');
     });
 });

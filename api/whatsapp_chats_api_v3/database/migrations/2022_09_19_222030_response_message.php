@@ -18,6 +18,7 @@ class ResponseMessage extends Migration
             $table->integer('chat_id');
             $table->string("text_message");
             $table->integer("flag_sended")->default(0);
+            $table->integer("chat_messages_id")->default(NULL)->nullable()->comment("Valorizzato solo se c'è una risposta salvata");
             $table->timestamps();
         });
     }

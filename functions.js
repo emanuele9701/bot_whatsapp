@@ -1,6 +1,7 @@
 const url = "http://localhost/bot_whatsapp/api/whatsapp_chats_api_v3/public/index.php/api";
 const axios = require("axios/index.js");
 const fs = require('fs');
+const { Client } = require("whatsapp-web.js");
 async function request(url_request, data_post = {}, method = 'post') {
 
     const params = new URLSearchParams();
@@ -20,6 +21,11 @@ async function request(url_request, data_post = {}, method = 'post') {
     })
 }
 
+async function getMessagesToSend() {
+    var result = await request(url + "/response/getListMessages", {}, 'get');
+    return result.data;
+}
+
 async function renameChat(chats) {
     var rename = new Array();
     chats.forEach(chat => {
@@ -35,11 +41,28 @@ async function renameChat(chats) {
     });
 }
 
+async function inviaMessaggio(client, chat_id, text = "Pippo") {
+    var messageSended = await client.sendMessage(chat_id, text);
+    console.log("Messaggio inviato");
+    var messageSendedId = messageSended.id._serialized;
+    var saved = await salvaMessaggio(messageSended);
+    return saved == true ? messageSendedId : null;
+}
+
 async function writeSendRequestLog(stringa) {
     console.log("ERRORE: " + stringa);
     fs.appendFileSync('request_log_sended.log', stringa + "\n", function(err) {
         if (err) return console.log(err);
     });
+}
+
+async function flagSendMex(mex_id, id_mex_saved) {
+    var response = await request(url + '/response/setSended', { response_message_id: mex_id, messagedSavedId: id_mex_saved }).then(function(e) {
+        return e.data;
+    }).catch(function(err) {
+        return false;
+    });
+    return response;
 }
 
 async function sincronizza_chat(chats) {
@@ -121,7 +144,7 @@ async function downloadImages(chats) {
         var mediaSend = new Array();
         const id = messageId[idy];
         writeSuccessLog("Processo chat: " + id.chats_id);
-        var c = getChatById(id.chats_id,chats);
+        var c = getChatById(id.chats_id, chats);
         if (c == null) {
             writeErrorLog("Chat non trovata, chat id: " + id.chats_id);
             continue;
@@ -174,6 +197,7 @@ async function downloadImages(chats) {
 
 async function salvaMessaggio(msg) {
 
+    var error = false;
     var msgSend = {
         fromMe: msg.fromMe,
         chats_id: msg.from,
@@ -184,7 +208,7 @@ async function salvaMessaggio(msg) {
         hasNewMex: 1
     }
 
-    if(msg.fromMe) {
+    if (msg.fromMe) {
         msgSend['chats_id'] = msg.to;
     }
     let data = JSON.stringify(msgSend);
@@ -192,6 +216,7 @@ async function salvaMessaggio(msg) {
     let base64data = buff.toString('base64');
     await request(url + "/chats/messages/insertNewMessage", { message: base64data }).catch(function(err) {
         console.log("Errore", err);
+        error = true;
     }).then(function(ok) {
         console.log("Successo");
     });
@@ -207,16 +232,20 @@ async function salvaMessaggio(msg) {
             }
             writeSuccessLog("Salvataggio messaggio: Media scaricato");
         }).catch(function(error) {
+
+            error = true;
             writeErrorLog("Salvataggio messaggio: Media non scaricato per " + error);
         })
         if (mediaFile != null) {
             await request(url + '/chats/messages/saveImageMessage', { data: JSON.stringify(mediaFile) }).then(function(succes) {
                 writeSuccessLog("Salvataggio messaggio: Inviati con successo!");
             }).catch(function(error) {
+                error = true;
                 writeErrorLog("Salvataggio messaggio: Errore nell'invio. " + error);
             });
         }
     }
+    return !error;
 }
 
 function getDateitalianFormat() {
@@ -231,7 +260,7 @@ function getDateitalianFormat() {
     return day + "/" + month + "/" + year + " " + hour + ":" + minutes + ":" + seconds;
 }
 
-function getChatById(idChat,chats) {
+function getChatById(idChat, chats) {
     var chatSearched = null;
     chats.forEach(chat => {
         if (chat.id._serialized == idChat) {
@@ -255,4 +284,4 @@ async function writeSuccessLog(stringa) {
     });
 }
 
-module.exports = { renameChat, sincronizza_chat, downloadImages, salvaMessaggio };
+module.exports = { renameChat, sincronizza_chat, downloadImages, salvaMessaggio, flagSendMex, getMessagesToSend, inviaMessaggio };

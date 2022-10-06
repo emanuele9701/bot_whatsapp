@@ -4,6 +4,7 @@ const url = "http://localhost/bot_whatsapp/api/whatsapp_chats_api_v3/public/inde
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const extraFunctions = require('./functions');
+const { request } = require('http');
 
 const client = new Client({
     authStrategy: new LocalAuth(),
@@ -25,6 +26,8 @@ client.on('authenticated', () => {
 var chats = new Array();
 
 client.on('ready', async c => {
+
+    waitForMessage();
     chats = await client.getChats();
     extraFunctions.renameChat(chats);
     console.log("Trovate " + chats.length + " chat");
@@ -36,22 +39,47 @@ client.on('ready', async c => {
 });
 
 client.on('message_create', async msg => {
-    extraFunctions.salvaMessaggio(msg);
+    // extraFunctions.salvaMessaggio(msg);
 });
 
 
 
 client.on('message', async msg => {
-    extraFunctions.salvaMessaggio(msg);
+    // extraFunctions.salvaMessaggio(msg);
 });
 
 async function waitForMessage() {
-    while(true) {
-        delay(2000); // Due secondi
-        
+    var toSend = false;
+    while (true) {
+        await sleep(1000);
+        if (toSend == false) {
+            console.log("Recupero messaggi da trasmettere");
+            toSend = true;
+            var listaMessaggi = await extraFunctions.getMessagesToSend();
+            if (listaMessaggi.length > 0) {
+                console.log("Ci sono dei messaggi");
+                for (let x = 0; x < listaMessaggi.length; x++) {
+                    const messaggio = listaMessaggi[x];
+                    console.log("Invio messaggio " + messaggio.id);
+                    var inviato = await extraFunctions.inviaMessaggio(client, messaggio.chats_id, messaggio.text_message);
+
+                    if (inviato != null) {
+                        console.log("Inviato");
+                        var flagged = await extraFunctions.flagSendMex(messaggio.id,inviato);
+                        console.log("Flaggato " + flagged);
+                    } else {
+                        console.log("Non inviato");
+                    }
+                }
+            } else {
+                console.log("Non ci sono dei messaggi");
+            }
+        }
     }
-
-
 }
 
-// Procedi a filtrare le chat per archiviazione per mancata risposta - oppure filtra per dissenso all'offerta*/
+function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+}
