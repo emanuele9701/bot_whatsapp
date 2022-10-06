@@ -39,19 +39,19 @@ client.on('ready', async c => {
 });
 
 client.on('message_create', async msg => {
-    // extraFunctions.salvaMessaggio(msg);
+    extraFunctions.salvaMessaggio(msg);
 });
 
 
 
 client.on('message', async msg => {
-    // extraFunctions.salvaMessaggio(msg);
+    extraFunctions.salvaMessaggio(msg);
 });
 
 async function waitForMessage() {
     var toSend = false;
     while (true) {
-        await sleep(1000);
+        await sleep(10000);
         if (toSend == false) {
             console.log("Recupero messaggi da trasmettere");
             toSend = true;
@@ -74,6 +74,7 @@ async function waitForMessage() {
             } else {
                 console.log("Non ci sono dei messaggi");
             }
+            toSend = false;
         }
     }
 }

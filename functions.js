@@ -50,7 +50,7 @@ async function inviaMessaggio(client, chat_id, text = "Pippo") {
 }
 
 async function writeSendRequestLog(stringa) {
-    console.log("ERRORE: " + stringa);
+    // console.log("SEND REQUEST: " + stringa);
     fs.appendFileSync('request_log_sended.log', stringa + "\n", function(err) {
         if (err) return console.log(err);
     });
@@ -66,11 +66,11 @@ async function flagSendMex(mex_id, id_mex_saved) {
 }
 
 async function sincronizza_chat(chats) {
-    console.log("Sicronizza chat");
+    // console.log("Sicronizza chat");
     var listChats = new Array();
     var listMessage = new Array();
     for (let index = 0; index < chats.length; index++) {
-        console.log(index + " of " + chats.length);
+        // console.log(index + " of " + chats.length);
         const chat = chats[index];
         if (chat.isGroup == true || chat.isReadOnly == true) {
             continue;
@@ -103,7 +103,7 @@ async function sincronizza_chat(chats) {
 
     await request(url + "/chats/checkChats", { chats: h.toString('base64') }).then((res) => {
         if (res.data.length <= 0) {
-            console.log("Non ha aggiunto nessuna chat, chat totali da aggiungere: " + listChats.length);
+            // console.log("Non ha aggiunto nessuna chat, chat totali da aggiungere: " + listChats.length);
         } else {
             console.log("Ha aggiunto chat " + res.data.length + ", chat totali da aggiungere: " + listChats.length);
         }
@@ -114,7 +114,7 @@ async function sincronizza_chat(chats) {
 
     await request(url + "/chats/messages/insertMultiNewMessage", { message: Buffer.from(JSON.stringify(listMessage)).toString('base64') }).then((res) => {
         if (res.data.esito == true) {
-            console.log("Messaggio aggiunto");
+            console.log("Messaggi aggiunti");
         } else {
             console.log(res.msg);
         }
@@ -183,14 +183,17 @@ async function downloadImages(chats) {
             writeErrorLog(getDateitalianFormat() + error + " - Errore nel download media per il messaggio: " + element.message_id);
         });
 
-        writeSuccessLog("Preparo invio con ws " + url + '/chats/messages/saveImageMessage');
-        writeSendRequestLog("Salvo immagini: " + JSON.stringify(mediaSend));
-        await request(url + '/chats/messages/saveImageMessage', { data: JSON.stringify(mediaSend) }).then(function(succes) {
-            writeSuccessLog("Inviati con successo!");
-        }).catch(function(error) {
-            writeErrorLog("Errore nell'invio. " + error);
-        });
-        mediaSend = new Array();
+        if(mediaSend.length > 3) {
+            writeSuccessLog("Preparo invio con ws " + url + '/chats/messages/saveImageMessage');
+            writeSendRequestLog("Salvo immagini");
+            await request(url + '/chats/messages/saveImageMessage', { data: JSON.stringify(mediaSend) }).then(function(succes) {
+                writeSuccessLog("Inviati con successo!");
+            }).catch(function(error) {
+                writeErrorLog("Errore nell'invio. " + error);
+            });
+            mediaSend = new Array();
+        }
+        
     }
 
 }
@@ -271,14 +274,14 @@ function getChatById(idChat, chats) {
 }
 
 async function writeErrorLog(stringa) {
-    console.log("ERRORE: " + stringa);
+    // console.log("ERRORE: " + stringa);
     fs.appendFileSync('error.log', stringa + "\n", function(err) {
         if (err) return console.log(err);
     });
 }
 
 async function writeSuccessLog(stringa) {
-    console.log("SUCCESSO: " + stringa);
+    // console.log("SUCCESSO: " + stringa);
     fs.appendFileSync('success.log', stringa + "\n", function(err) {
         if (err) return console.log(err);
     });

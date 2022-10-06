@@ -195,7 +195,7 @@
         integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0/axios.js" integrity="sha512-HHy6oUGCSBNnEOOG5qtKfLj/ROEAUdbVkznx6Y7x9+qBOvL3PE+oEBSliM5dcOlqMxiuXqca58WbFPXimX11LQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         const {
             createApp
@@ -256,15 +256,6 @@
                     this.listaChat = result.data;
                     this.backupListaChat = this.listaChat;
                 });
-                // $.ajax({
-                //     url:"{{ route('list_all_chats') }}",
-                //     async: false,
-                //     method:'get',
-                //     lista_chat = result.data;
-                //     result: function (result) {
-
-                //     }
-                // })
             },
         }).mount('#app');
     </script>
