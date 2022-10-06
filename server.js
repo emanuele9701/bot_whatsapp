@@ -44,4 +44,14 @@ client.on('message_create', async msg => {
 client.on('message', async msg => {
     extraFunctions.salvaMessaggio(msg);
 });
+
+async function waitForMessage() {
+    while(true) {
+        delay(2000); // Due secondi
+        
+    }
+
+
+}
+
 // Procedi a filtrare le chat per archiviazione per mancata risposta - oppure filtra per dissenso all'offerta*/
