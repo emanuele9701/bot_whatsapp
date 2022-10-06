@@ -30,7 +30,7 @@ private static $installed = array (
     'aliases' => 
     array (
     ),
-    'reference' => 'f227abca5e21e9c527e184fce047df4de78790bf',
+    'reference' => '76e16c875e8f94389d27ae6956acd0a377afd3c3',
     'name' => 'laravel/laravel',
   ),
   'versions' => 
@@ -451,7 +451,7 @@ private static $installed = array (
       'aliases' => 
       array (
       ),
-      'reference' => 'f227abca5e21e9c527e184fce047df4de78790bf',
+      'reference' => '76e16c875e8f94389d27ae6956acd0a377afd3c3',
     ),
     'laravel/sail' => 
     array (
@@ -500,12 +500,12 @@ private static $installed = array (
     ),
     'league/flysystem' => 
     array (
-      'pretty_version' => '1.1.9',
-      'version' => '1.1.9.0',
+      'pretty_version' => '1.1.10',
+      'version' => '1.1.10.0',
       'aliases' => 
       array (
       ),
-      'reference' => '094defdb4a7001845300334e7c1ee2335925ef99',
+      'reference' => '3239285c825c152bcc315fe0e87d6b55f5972ed1',
     ),
     'league/mime-type-detection' => 
     array (
