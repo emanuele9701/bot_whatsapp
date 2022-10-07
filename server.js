@@ -55,7 +55,11 @@ async function waitForMessage() {
         if (toSend == false) {
             console.log("Recupero messaggi da trasmettere");
             toSend = true;
-            var listaMessaggi = await extraFunctions.getMessagesToSend();
+            var listaMessaggi = await extraFunctions.getMessagesToSend().then(function (res) {
+                return res;
+            }).catch(function (err) {
+                console.log("Recupero mex errore - "+err);
+            });
             if (listaMessaggi.length > 0) {
                 console.log("Ci sono dei messaggi");
                 for (let x = 0; x < listaMessaggi.length; x++) {

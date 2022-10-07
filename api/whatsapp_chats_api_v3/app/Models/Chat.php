@@ -23,26 +23,27 @@ class Chat extends Model
 
     public static function allChats($with = false, $sort = "asc")
     {
-        $chats = DB::table("chats", "c")->join("chat_messages", "c.chats_id", "=", "chat_messages.chats_id")->where("body", '!=', "")->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id', 'c.*', 'chat_messages.*'])->toArray();
-        $addChats = [];
-        if ($with !== false) {
-            $addChats = DB::table("chats", "c")->join("chat_messages", "c.chats_id", "=", "chat_messages.chats_id")->where("c.id", '=', $with)->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id', 'c.*', 'chat_messages.*'])->toArray();
-            $chats = array_merge($chats, $addChats);
+
+        $chats_ids = DB::table('chats', 'c')->join('chat_messages', 'c.chats_id', '=', 'chat_messages.chats_id')->where("body", '!=', "")->groupBy('c.chats_id')->orderByDesc('c.updated_at')->limit(100)->get(['c.id as chat_id', 'c.name', 'c.chats_id']);
+
+        foreach ($chats_ids as $k => $chat) {
+            $lastMessage = Chat::getChatsLastMessaggeByChatId($chat->chats_id);
+            $chats_ids[$k]->timestamp_message = $lastMessage[0]->timestamp_message;
+            $chats_ids[$k]->body = $lastMessage[0]->body;
+            $chats_ids[$k]->hasNewMex = $lastMessage[0]->hasNewMex;
         }
 
-
-        foreach ($chats as $k => $chat) {
-            $chats[$k]->timestamp_message = date("Y-m-d H:i:s", $chat->timestamp_message / 1000);
-        }
-
-        return $chats;
+        return $chats_ids;
     }
 
     public static function whereLike($what)
     {
-        $chats = DB::table("chats", "c")->join("chat_messages", "c.chats_id", "=", "chat_messages.chats_id")->where("body", '!=', "")->where('c.name', 'like', "%$what%")->orderByDesc("chat_messages.timestamp_message")->groupByRaw('chat_id')->limit(50)->get(['c.id as chat_id', 'c.*', 'chat_messages.*']);
+        $chats = DB::table('chats', 'c')->join('chat_messages', 'c.chats_id', '=', 'chat_messages.chats_id')->where("body", '!=', "")->where('c.name', 'like', "%$what%")->groupBy('c.chats_id')->orderByDesc('c.updated_at')->limit(100)->get(['c.id as chat_id', 'c.name', 'c.chats_id']);
         foreach ($chats as $k => $chat) {
-            $chats[$k]->timestamp_message = date("Y-m-d H:i:s", $chat->timestamp_message / 1000);
+            $lastMessage = Chat::getChatsLastMessaggeByChatId($chat->chats_id);
+            $chats[$k]->timestamp_message = $lastMessage[0]->timestamp_message;
+            $chats[$k]->body = $lastMessage[0]->body;
+            $chats[$k]->hasNewMex = $lastMessage[0]->hasNewMex;
         }
 
         return $chats;
@@ -76,10 +77,25 @@ class Chat extends Model
     }
 
 
+    /**
+     * Restituisce la chat con l'ultimo messaggio
+     */
+    public static function getChatsLastMessaggeByChatId($chatId, $sort = "asc")
+    {
+        $mx = [];
+        $message = Message::findForChatsId($chatId, false, true);
+        if ($message !== false) {
+            $message->timestamp_message = date("Y-m-d H:i:s", $message->timestamp_message / 1000);
+            $mx[] = $message;
+        }
+        return $mx;
+    }
+
     public static function getAllMessages($chat_id)
     {
-        $mx = DB::table('chat_messages', 'cm')->join('chats', 'cm.chats_id', '=', 'chats.chats_id')->leftJoin("media_messages", 'media_messages.message_id', '=', 'cm.message_id')->where("body", "!=", "")->where('chats.id', '=', $chat_id)->orderBy('cm.timestamp_message')->get(['cm.*', 'chats.updated_at', 'media_messages.name as nome_immagine']);
-        
+
+        $mx = DB::table('chat_messages', 'cm')->join('chats', 'cm.chats_id', '=', 'chats.chats_id')->leftJoin("media_messages", 'media_messages.id', '=', 'cm.mediaFile')->where("body", "!=", "")->where('chats.id', '=', $chat_id)->orderBy('cm.timestamp_message')->get(['cm.*', 'chats.updated_at', 'media_messages.name as nome_immagine']);
+
         foreach ($mx as $key => $m) {
             $mx[$key]->timestamp_message = date("Y-m-d H:i:s", $m->timestamp_message / 1000);
             $mx[$key]->stream = null;
@@ -87,8 +103,10 @@ class Chat extends Model
                 $mx[$key]->nome_immagine = $mx[$key]->nome_immagine;
                 $mx[$key]->stream = base64_encode(Storage::disk('local2')->get($mx[$key]->nome_immagine));
             }
+            
+            Message::where("id", $m->id)->update(['hasNewMex' => 0]);
         }
-        
+
         return $mx;
     }
 }

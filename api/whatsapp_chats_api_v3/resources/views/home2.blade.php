@@ -120,13 +120,22 @@
                 -webkit-overflow-scrolling: touch;"
                     id="chatList">
                     <a v-for="chat in listaChat"
-                        class="list-group-item list-group-item-action flex-column align-items-start"
                         v-on:click="openChat(chat.chat_id)">
-                        <div class="d-flex w-100 justify-content-between">
-                            <h5 class="mb-1">@{{ chat.name }}</h5>
-                            <small class="text-muted">@{{ chat.timestamp_message }}</small>
+                        <div v-if="chat.hasNewMex" style="background-color: darkkhaki;" class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">@{{ chat.name }}</h5>
+                                <small class="text-muted">@{{ chat.timestamp_message }}</small>
+                            </div>
+                            <p class="mb-1">@{{ chat.body }}</p>
                         </div>
-                        <p class="mb-1">@{{ chat.body }}</p>
+
+                        <div v-else class="list-group-item list-group-item-action flex-column align-items-start">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">@{{ chat.name }}</h5>
+                                <small class="text-muted">@{{ chat.timestamp_message }}</small>
+                            </div>
+                            <p class="mb-1">@{{ chat.body }}</p>
+                        </div>
                     </a>
                 </div>
             </div>
@@ -195,7 +204,9 @@
         integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0/axios.js" integrity="sha512-HHy6oUGCSBNnEOOG5qtKfLj/ROEAUdbVkznx6Y7x9+qBOvL3PE+oEBSliM5dcOlqMxiuXqca58WbFPXimX11LQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0/axios.js"
+        integrity="sha512-HHy6oUGCSBNnEOOG5qtKfLj/ROEAUdbVkznx6Y7x9+qBOvL3PE+oEBSliM5dcOlqMxiuXqca58WbFPXimX11LQ=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
         const {
             createApp
@@ -224,7 +235,7 @@
                         chat_id: this.chat_selected,
                         message: this.textResponseChat
                     }).then(function(response) {
-                        if(response.esito == true) {
+                        if (response.esito == true) {
                             openChat(this.chat_selected);
                         }
                     }).catch(function(error) {
