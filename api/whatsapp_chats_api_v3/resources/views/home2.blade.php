@@ -226,17 +226,16 @@
             font-size: 0;
             content: " ";
             clear: both;
-            height: 0
         }
 
         @media only screen and (max-width: 767px) {
             .chat-app .people-list {
                 height: 465px;
-                width: 100%;
+                /* width: 30%; */
                 overflow-x: auto;
                 background: #fff;
-                left: -400px;
-                display: none
+                /* left: -400px; */
+                /* display: none */
             }
 
             .chat-app .people-list.open {
@@ -244,7 +243,7 @@
             }
 
             .chat-app .chat {
-                margin: 0
+                /* margin: 0 */
             }
 
             .chat-app .chat .chat-header {
@@ -280,7 +279,8 @@
                 overflow-x: auto
             }
         }
-        .mexOther{
+
+        .mexOther {
             background-color: #1d8ecd !important;
         }
     </style>
@@ -290,68 +290,65 @@
 
     <div id="app" style="margin: 1rem;">
 
-        <div class="container">
-            <div class="row clearfix">
-                <div class="col-lg-12">
-                    <div class="card chat-app">
-                        <div id="plist" class="people-list" style="overflow-y: scroll;">
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Ricerca chat"
-                                    aria-describedby="helpId" v-model="textSearch" v-on:keyup.enter="search">
+        <div class="row clearfix" style="height: 100vh;">
+            <div class="col-lg-12">
+                <div class="card chat-app">
+                    <div id="plist" class="people-list" style="overflow-y: scroll;">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Ricerca chat"
+                                aria-describedby="helpId" v-model="textSearch" v-on:keyup.enter="search">
+                        </div>
+                        <ul class="list-unstyled chat-list mt-2 mb-0">
+                            <li v-for="(chat,index) in listaChat" v-on:click="openChat(index)">
+                                {{-- Ciclo vue --}}
+                                <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="avatar">
+                                <div class="name">@{{ chat.name }}</div>
+                                <div class="status"> @{{ chat.timestamp_message }}</div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="chat">
+                        <div class="chat-header clearfix">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <a href="javascript:void(0);" data-toggle="modal" data-target="#view_info">
+                                        <img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="avatar">
+                                    </a>
+                                    <div class="chat-about">
+                                        <h6 class="m-b-0">@{{ name_chat_header }}</h6>
+                                        <small>@{{ last_message_date }}</small>
+                                    </div>
+                                </div>
                             </div>
-                            <ul class="list-unstyled chat-list mt-2 mb-0">
-                                <li v-for="(chat,index) in listaChat" v-on:click="openChat(index)">
-                                    {{-- Ciclo vue --}}
-                                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="avatar">
-                                    <div class="name">@{{ chat.name }}</div>
-                                    <div class="status"> @{{ chat.timestamp_message }}</div>
+                        </div>
+                        <div class="chat-history" style="overflow-y: auto;">
+                            <ul class="m-b-0">
+                                {{-- Messaggio mio --}}
+                                <li class="clearfix" v-for="message in messages">
+
+                                    <div v-if="message.fromMe">
+                                        <div class="message-data text-right" style="text-align: right;">
+                                            <span class="message-data-time">@{{ message.timestamp_message }}</span>
+                                        </div>
+                                        <div class="message other-message float-right mexOther">
+                                            @{{ message.body }}</div>
+                                    </div>
+                                    <div class="mexMe" v-if="!message.fromMe">
+                                        <div class="message-data">
+                                            <span class="message-data-time">@{{ message.timestamp_message }}</span>
+                                        </div>
+                                        <div class="message other-message float-left">
+                                            @{{ message.body }}</div>
+                                    </div>
                                 </li>
                             </ul>
                         </div>
-                        <div class="chat">
-                            <div class="chat-header clearfix">
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <a href="javascript:void(0);" data-toggle="modal" data-target="#view_info">
-                                            <img src="https://bootdey.com/img/Content/avatar/avatar2.png"
-                                                alt="avatar">
-                                        </a>
-                                        <div class="chat-about">
-                                            <h6 class="m-b-0">@{{ name_chat_header }}</h6>
-                                            <small>@{{ last_message_date }}</small>
-                                        </div>
-                                    </div>
+                        <div class="chat-message clearfix">
+                            <div class="input-group mb-0">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fa fa-send"></i></span>
                                 </div>
-                            </div>
-                            <div class="chat-history" style="overflow-y: auto;">
-                                <ul class="m-b-0" >
-                                    {{-- Messaggio mio --}}
-                                    <li class="clearfix" v-for="message in messages" >
-
-                                        <div  v-if="!message.fromMe">
-                                            <div class="message-data text-right" style="text-align: right;">
-                                                <span class="message-data-time">@{{ message.timestamp_message }}</span>
-                                            </div>
-                                            <div class="message other-message float-right mexOther">
-                                                @{{ message.body }}</div>
-                                        </div>
-                                        <div class="mexMe" v-if="!message.fromMe">
-                                            <div class="message-data" >
-                                                <span class="message-data-time">@{{ message.timestamp_message }}</span>
-                                            </div>
-                                            <div class="message other-message float-left">
-                                                @{{ message.body }}</div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="chat-message clearfix">
-                                <div class="input-group mb-0">
-                                    <div class="input-group-prepend">
-                                        <span class="input-group-text"><i class="fa fa-send"></i></span>
-                                    </div>
-                                    <input type="text" class="form-control" placeholder="Enter text here...">
-                                </div>
+                                <input type="text" class="form-control" placeholder="Enter text here...">
                             </div>
                         </div>
                     </div>
@@ -389,7 +386,8 @@
             },
             methods: {
                 openChat(chat_id) {
-                    axios.get("{{ route('list_all_messages') }}/" + this.listaChat[chat_id].chat_id).then(result => {
+                    axios.get("{{ route('list_all_messages') }}/" + this.listaChat[chat_id].chat_id).then(
+                    result => {
                         this.messages = result.data;
                         this.name_chat_header = this.listaChat[chat_id].name;
                         this.last_message_date = this.listaChat[chat_id].timestamp_message;
