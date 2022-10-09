@@ -8,191 +8,353 @@
     <title>Home</title>
 
     <!-- Fonts -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
     <!-- Styles -->
     <style>
-        .card_to {
-            background-color: burlywood;
-            border: none;
-            margin: 1rem;
-            width: 93%;
-        }
-
-        .card_from {
-            background-color: azure;
-            border: none;
-            margin: 1rem;
-        }
-
         body {
-            background-color: rgb(60, 60, 60);
-            font-family: 'Nunito', sans-serif;
-            overflow-x: hidden;
+            background-color: #f4f7f6;
+            margin-top: 20px;
         }
 
-        .messagge_me {
-            background-color: burlywood;
-            width: 30%;
-            margin-right: 70%;
-            margin-top: 1rem;
-            margin-left: 1rem;
-            border-radius: 25px
+        .card {
+            background: #fff;
+            transition: .5s;
+            border: 0;
+            margin-bottom: 30px;
+            border-radius: .55rem;
+            position: relative;
+            width: 100%;
+            box-shadow: 0 1px 2px 0 rgb(0 0 0 / 10%);
         }
 
-        .messagge_from {
-            /* text-align: right; */
-            background-color: azure;
-            width: 30%;
-            margin-left: 70%;
-            margin-top: 1rem;
-            margin-right: 1rem;
-            border-radius: 25px
-        }
-
-        .info-data-me {
-            text-align: right;
-            font-size: 10px
-        }
-
-        .info-data-from {
-            text-align: left;
-            font-size: 10px
-        }
-
-        .text-data-from {
-            font-family: 'Courier New', Courier, monospace
-        }
-
-        .text-data-me {
-            font-family: 'Courier New', Courier, monospace
-        }
-
-        .messages {
-            margin-bottom: 1rem;
-        }
-
-        .module_send {
+        .chat-app .people-list {
+            width: 280px;
             position: absolute;
-            bottom: 0px;
-            width: 68% !important;
-            margin-top: 1rem;
-            max-width: 1000px;
-            left: 40%;
+            left: 0;
+            top: 0;
+            padding: 20px;
+            z-index: 7;
+            height: 100%;
         }
 
-        .list_message {
-            margin-top: 3.4rem;
-            max-height: 800px;
-            max-width: 1430px;
-            border-style: solid;
-            overflow: scroll;
-            overflow-x: hidden;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
-            display: flex;
-            flex-direction: column-reverse;
+        .chat-app .chat {
+            margin-left: 280px;
+            border-left: 1px solid #eaeaea
+        }
+
+        .people-list {
+            -moz-transition: .5s;
+            -o-transition: .5s;
+            -webkit-transition: .5s;
+            transition: .5s
+        }
+
+        .people-list .chat-list li {
+            padding: 10px 15px;
+            list-style: none;
+            border-radius: 3px
+        }
+
+        .people-list .chat-list li:hover {
+            background: #efefef;
+            cursor: pointer
+        }
+
+        .people-list .chat-list li.active {
+            background: #efefef
+        }
+
+        .people-list .chat-list li .name {
+            font-size: 15px
+        }
+
+        .people-list .chat-list img {
+            width: 45px;
+            border-radius: 50%
+        }
+
+        .people-list img {
+            float: left;
+            border-radius: 50%
+        }
+
+        .people-list .about {
+            float: left;
+            padding-left: 8px
+        }
+
+        .people-list .status {
+            color: #999;
+            font-size: 13px
+        }
+
+        .chat .chat-header {
+            padding: 15px 20px;
+            border-bottom: 2px solid #f4f7f6
+        }
+
+        .chat .chat-header img {
+            float: left;
+            border-radius: 40px;
+            width: 40px
+        }
+
+        .chat .chat-header .chat-about {
+            float: left;
+            padding-left: 10px
+        }
+
+        .chat .chat-history {
+            padding: 20px;
+            border-bottom: 2px solid #fff
+        }
+
+        .chat .chat-history ul {
+            padding: 0
+        }
+
+        .chat .chat-history ul li {
+            list-style: none;
+            margin-bottom: 30px
+        }
+
+        .chat .chat-history ul li:last-child {
+            margin-bottom: 0px
+        }
+
+        .chat .chat-history .message-data {
+            margin-bottom: 15px
+        }
+
+        .chat .chat-history .message-data img {
+            border-radius: 40px;
+            width: 40px
+        }
+
+        .chat .chat-history .message-data-time {
+            color: #434651;
+            padding-left: 6px
+        }
+
+        .chat .chat-history .message {
+            color: #444;
+            padding: 18px 20px;
+            line-height: 26px;
+            font-size: 16px;
+            border-radius: 7px;
+            display: inline-block;
+            position: relative
+        }
+
+        .chat .chat-history .message:after {
+            bottom: 100%;
+            left: 7%;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+            border-bottom-color: #fff;
+            border-width: 10px;
+            margin-left: -10px
+        }
+
+        .chat .chat-history .my-message {
+            background: #efefef
+        }
+
+        .chat .chat-history .my-message:after {
+            bottom: 100%;
+            left: 30px;
+            border: solid transparent;
+            content: " ";
+            height: 0;
+            width: 0;
+            position: absolute;
+            pointer-events: none;
+            border-bottom-color: #efefef;
+            border-width: 10px;
+            margin-left: -10px
+        }
+
+        .chat .chat-history .other-message {
+            background: #e8f1f3;
+            text-align: right
+        }
+
+        .chat .chat-history .other-message:after {
+            border-bottom-color: #e8f1f3;
+            left: 93%
+        }
+
+        .chat .chat-message {
+            padding: 20px
+        }
+
+        .online,
+        .offline,
+        .me {
+            margin-right: 2px;
+            font-size: 8px;
+            vertical-align: middle
+        }
+
+        .online {
+            color: #86c541
+        }
+
+        .offline {
+            color: #e47297
+        }
+
+        .me {
+            color: #1d8ecd
+        }
+
+        .float-right {
+            float: right
+        }
+
+        .clearfix:after {
+            visibility: hidden;
+            display: block;
+            font-size: 0;
+            content: " ";
+            clear: both;
+            height: 0
+        }
+
+        @media only screen and (max-width: 767px) {
+            .chat-app .people-list {
+                height: 465px;
+                width: 100%;
+                overflow-x: auto;
+                background: #fff;
+                left: -400px;
+                display: none
+            }
+
+            .chat-app .people-list.open {
+                left: 0
+            }
+
+            .chat-app .chat {
+                margin: 0
+            }
+
+            .chat-app .chat .chat-header {
+                border-radius: 0.55rem 0.55rem 0 0
+            }
+
+            .chat-app .chat-history {
+                height: 300px;
+                overflow-x: auto
+            }
+        }
+
+        @media only screen and (min-width: 768px) and (max-width: 992px) {
+            .chat-app .chat-list {
+                height: 650px;
+                overflow-x: auto
+            }
+
+            .chat-app .chat-history {
+                height: 600px;
+                overflow-x: auto
+            }
+        }
+
+        @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: landscape) and (-webkit-min-device-pixel-ratio: 1) {
+            .chat-app .chat-list {
+                height: 480px;
+                overflow-x: auto
+            }
+
+            .chat-app .chat-history {
+                height: calc(100vh - 350px);
+                overflow-x: auto
+            }
+        }
+        .mexOther{
+            background-color: #1d8ecd !important;
         }
     </style>
 </head>
 
 <body class="antialiased">
+
     <div id="app" style="margin: 1rem;">
 
-        <div class="row">
-            <div class="col-md" style="max-width: 25%;">
-                <div class="row">
-                    <div class="col-xl" style="margin-bottom: 1rem; position: left;margin-right: 30%">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Ricerca chat"
-                                aria-describedby="helpId" v-model="textSearch" v-on:keyup.enter="search">
-                        </div>
-                    </div>
-                </div>
-                <div class="list-group"
-                    style="max-height: 866px;
-                    height: 100%;
-                    border-style: solid;
-                margin-bottom: 10px;
-                overflow:scroll;
-                overflow-x: hidden;
-                -webkit-overflow-scrolling: touch;"
-                    id="chatList">
-                    <a v-for="chat in listaChat"
-                        v-on:click="openChat(chat.chat_id)">
-                        <div v-if="chat.hasNewMex" style="background-color: darkkhaki;" class="list-group-item list-group-item-action flex-column align-items-start">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">@{{ chat.name }}</h5>
-                                <small class="text-muted">@{{ chat.timestamp_message }}</small>
+        <div class="container">
+            <div class="row clearfix">
+                <div class="col-lg-12">
+                    <div class="card chat-app">
+                        <div id="plist" class="people-list" style="overflow-y: scroll;">
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Ricerca chat"
+                                    aria-describedby="helpId" v-model="textSearch" v-on:keyup.enter="search">
                             </div>
-                            <p class="mb-1">@{{ chat.body }}</p>
+                            <ul class="list-unstyled chat-list mt-2 mb-0">
+                                <li v-for="(chat,index) in listaChat" v-on:click="openChat(index)">
+                                    {{-- Ciclo vue --}}
+                                    <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="avatar">
+                                    <div class="name">@{{ chat.name }}</div>
+                                    <div class="status"> @{{ chat.timestamp_message }}</div>
+                                </li>
+                            </ul>
                         </div>
-
-                        <div v-else class="list-group-item list-group-item-action flex-column align-items-start">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h5 class="mb-1">@{{ chat.name }}</h5>
-                                <small class="text-muted">@{{ chat.timestamp_message }}</small>
-                            </div>
-                            <p class="mb-1">@{{ chat.body }}</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            <div class="col-xl list_message">
-
-                <div class="messages" id="mex_list" onload="scrollTo(0, 0);">
-                    <div class="row" v-for="message in messages">
-                        <div v-if="message.fromMe">
-                            <div class="card card_to" style="width: 20%;" v-if="message.stream">
-                                <img class="card-img-top" :src="'data:image/jpeg;base64,' + message.stream"
-                                    style="width: auto;">
-                                <div class="card-body" style="width: 100%;">
-                                    <p class="card-text">@{{ message.body }}</p>
-                                    <small class="info-data-me">@{{ message.timestamp_message }}</small>
+                        <div class="chat">
+                            <div class="chat-header clearfix">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <a href="javascript:void(0);" data-toggle="modal" data-target="#view_info">
+                                            <img src="https://bootdey.com/img/Content/avatar/avatar2.png"
+                                                alt="avatar">
+                                        </a>
+                                        <div class="chat-about">
+                                            <h6 class="m-b-0">@{{ name_chat_header }}</h6>
+                                            <small>@{{ last_message_date }}</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <div v-else class="row message_from"
-                                style="background-color: burlywood;
-                            width: 30%;
-                            margin-right: 70%;
-                            margin-top: 1rem;
-                            margin-left: 1rem;
-                            border-radius: 25px;">
-                                <p class="text-data-me">@{{ message.body }}</p>
-                                <small class="info-data-me">@{{ message.timestamp_message }}</small>
+                            <div class="chat-history" style="overflow-y: auto;">
+                                <ul class="m-b-0" >
+                                    {{-- Messaggio mio --}}
+                                    <li class="clearfix" v-for="message in messages" >
+
+                                        <div  v-if="!message.fromMe">
+                                            <div class="message-data text-right" style="text-align: right;">
+                                                <span class="message-data-time">@{{ message.timestamp_message }}</span>
+                                            </div>
+                                            <div class="message other-message float-right mexOther">
+                                                @{{ message.body }}</div>
+                                        </div>
+                                        <div class="mexMe" v-if="!message.fromMe">
+                                            <div class="message-data" >
+                                                <span class="message-data-time">@{{ message.timestamp_message }}</span>
+                                            </div>
+                                            <div class="message other-message float-left">
+                                                @{{ message.body }}</div>
+                                        </div>
+                                    </li>
+                                </ul>
                             </div>
-                        </div>
-                        <div v-else-if="!message.fromMe"
-                            style="background-color: azure;
-                        width: 30%;
-                        margin-left: 68%;
-                        margin-top: 1rem;
-                        margin-right: 1rem;
-                        border-radius: 25px;">
-                            <div class="card card_from" style="width: 18rem;" v-if="message.stream">
-                                <img class="card-img-top" :src="'data:image/jpeg;base64,' + message.stream"
-                                    style="width: 250px !important;">
-                                <div class="card-body" style="width: 100%;">
-                                    <p class="card-text">@{{ message.body }}</p>
-                                    <small class="info-data-from">@{{ message.timestamp_message }}</small>
+                            <div class="chat-message clearfix">
+                                <div class="input-group mb-0">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="fa fa-send"></i></span>
+                                    </div>
+                                    <input type="text" class="form-control" placeholder="Enter text here...">
                                 </div>
-                            </div>
-                            <div v-else-if="!message.stream">
-                                <p class="text-data-from">@{{ message.body }}</p>
-                                <small class="info-data-from">@{{ message.timestamp_message }}</small>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="row module_send">
-                <div class="col col-11">
-                    <textarea id="makedMessage" v-model="textResponseChat" style="width: 100%;" class="form-control"></textarea>
-                </div>
-                <div class="col col-1">
-                    <button class="btn btn-primary" v-on:click="sendMessage">Invia</button>
                 </div>
             </div>
         </div>
@@ -220,15 +382,20 @@
                     backupListaChat: [],
                     textSearch: "",
                     textResponseChat: "",
-                    chat_selected: 0
+                    chat_selected: 0,
+                    name_chat_header: "Nome chat",
+                    last_message_date: "Lunedi 3 ottobre 2022 10:22"
                 }
             },
             methods: {
                 openChat(chat_id) {
-                    axios.get("{{ route('list_all_messages') }}/" + chat_id).then(result => {
+                    axios.get("{{ route('list_all_messages') }}/" + this.listaChat[chat_id].chat_id).then(result => {
                         this.messages = result.data;
+                        this.name_chat_header = this.listaChat[chat_id].name;
+                        this.last_message_date = this.listaChat[chat_id].timestamp_message;
                     });
                     this.chat_selected = chat_id;
+
                 },
                 sendMessage() {
                     axios.post("{{ route('responseMessage') }}", {
