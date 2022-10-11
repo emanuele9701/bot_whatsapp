@@ -221,7 +221,7 @@ async function salvaMessaggio(msg) {
         console.log("Errore", err);
         error = true;
     }).then(function(ok) {
-        console.log("Successo");
+        // console.log("Successo");
     });
 
     if (msg.hasMedia) {

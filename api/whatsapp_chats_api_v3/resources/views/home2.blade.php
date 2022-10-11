@@ -31,6 +31,11 @@
             box-shadow: 0 1px 2px 0 rgb(0 0 0 / 10%);
         }
 
+        .chat-app {
+            max-height: 1000px;
+            height: 95%;
+        }
+
         .chat-app .people-list {
             width: 280px;
             position: absolute;
@@ -321,7 +326,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="chat-history" style="overflow-y: auto;">
+                        <div class="chat-history" style="overflow-y: auto; max-height: 770px; height: 100% !important;">
                             <ul class="m-b-0">
                                 {{-- Messaggio mio --}}
                                 <li class="clearfix" v-for="message in messages">
@@ -344,12 +349,16 @@
                             </ul>
                         </div>
                         <div class="chat-message clearfix">
-                            <div class="input-group mb-0">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text"><i class="fa fa-send"></i></span>
+                            <div class="row">
+                                <div class="col">
+                                    <input type="text" v-model="textResponseChat" class="form-control"
+                                        placeholder="Scrivi messaggio">
                                 </div>
-                                <input type="text" class="form-control" placeholder="Enter text here...">
+                                <div class="col">
+                                    <button class="btn btn-primary" v-on:click="sendMessage">Invia</button>
+                                </div>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -362,38 +371,33 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.1/jquery.min.js"
         integrity="sha512-aVKKRRi/Q/YV+4mjoKBsE4x3H+BkegoM/em46NNlCqNTmUYADjBbeNefNxYV7giUp0VxICtqdrbqU7iVaeZNXA=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://js.pusher.com/7.2/pusher.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0/axios.js"
         integrity="sha512-HHy6oUGCSBNnEOOG5qtKfLj/ROEAUdbVkznx6Y7x9+qBOvL3PE+oEBSliM5dcOlqMxiuXqca58WbFPXimX11LQ=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
-        const {
-            createApp
-        } = Vue;
-
-        createApp({
-            data() {
-                return {
-                    messages: [],
-                    listaChat: [],
-                    backupListaChat: [],
-                    textSearch: "",
-                    textResponseChat: "",
-                    chat_selected: 0,
-                    name_chat_header: "Nome chat",
-                    last_message_date: "Lunedi 3 ottobre 2022 10:22"
-                }
+        const createApp = new Vue({
+            el: '#app',
+            data: {
+                messages: [],
+                listaChat: [],
+                backupListaChat: [],
+                textSearch: "",
+                textResponseChat: "",
+                chat_selected: 0,
+                name_chat_header: "",
+                last_message_date: ""
             },
             methods: {
                 openChat(chat_id) {
                     axios.get("{{ route('list_all_messages') }}/" + this.listaChat[chat_id].chat_id).then(
-                    result => {
-                        this.messages = result.data;
-                        this.name_chat_header = this.listaChat[chat_id].name;
-                        this.last_message_date = this.listaChat[chat_id].timestamp_message;
-                    });
-                    this.chat_selected = chat_id;
-
+                        result => {
+                            this.messages = result.data;
+                            this.name_chat_header = this.listaChat[chat_id].name;
+                            this.last_message_date = this.listaChat[chat_id].timestamp_message;
+                            this.chat_selected = this.listaChat[chat_id].chat_id;
+                        });
                 },
                 sendMessage() {
                     axios.post("{{ route('responseMessage') }}", {
@@ -425,15 +429,44 @@
                             this.listaChat = chatSearched;
                         }
                     }
+                },
+                reload() {
+                    axios.get("{{ route('list_all_chats') }}").then(result => {
+                        this.listaChat = result.data;
+                        this.backupListaChat = this.listaChat;
+                    });
                 }
+
             },
-            mounted() {
+
+            mounted: function() {
                 axios.get("{{ route('list_all_chats') }}").then(result => {
                     this.listaChat = result.data;
                     this.backupListaChat = this.listaChat;
                 });
             },
-        }).mount('#app');
+        });
+        var pusher = new Pusher('456ef6b739ac3e6f465b', {
+            cluster: 'eu'
+        });
+
+        var channel = pusher.subscribe('messages');
+        channel.bind('App\\Events\\NewMessage', function(data) {
+            // channel.bind('newMessage', function(data) {
+            createApp.reload()
+        });
+
+        // createApp({
+        //     data() {
+        //         return {
+
+        //         }
+        //     },
+        //     methods: {
+
+        //     },
+
+        // }).mount('#app');
     </script>
 </body>
 

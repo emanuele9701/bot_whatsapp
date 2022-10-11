@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewMessage;
 use App\Models\Chat;
 use App\Models\MediaMessage;
 use App\Models\Message;
@@ -59,10 +60,15 @@ class ChatMessagesController extends Controller
             return ['esito' => false, 'msg' => 'No message!'];
         }
         if (isset($messages['fromMe'])) {
+
             $probMex = Message::findForMessageId($messages['message_id']);
             if (!$probMex) {
                 Message::insert($messages);
                 Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
+            }
+
+            if ($messages['fromMe'] == false) {
+                event(new NewMessage(1));
             }
         } else {
             foreach ($messages as $message) {
@@ -70,6 +76,9 @@ class ChatMessagesController extends Controller
                 if (!$probMex) {
                     Message::insert($message);
                     Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
+                }
+                if ($message['fromMe']  == false) {
+                    event(new NewMessage(1));
                 }
             }
         }
