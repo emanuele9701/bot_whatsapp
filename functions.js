@@ -26,6 +26,39 @@ async function getMessagesToSend() {
     return result.data;
 }
 
+async function sendInfoChat(chats) {
+    var chats_info = new Array();
+
+    for (let x = 0; x < chats.length; x++) {
+        const element = chats[x];
+        var contatto = await element.getContact();
+        if (contatto != undefined) {
+            chats_info.push({
+                contatto_id: contatto.id,
+                numero: contatto.number,
+                chat_id: element.id._serialized,
+                numero_formattato: await contatto.getFormattedNumber(),
+                name: contatto.name,
+                short_name: contatto.shortName,
+                public_name: contatto.pushname,
+                haveWhatsApp: contatto.isWAContact,
+                isGroup: contatto.isGroup,
+                isBlocked: contatto.isBlocked,
+                url_image: await contatto.getProfilePicUrl(),
+            });
+        }
+        if(x == 3) {
+            break;
+        }
+    }
+    var json = JSON.stringify(chats_info);
+    await request(url + '/chats/updateChatsInfo', { info_chats: json }).then(function(success) {
+        console.log(success);
+    }).catch(function(error) {
+        console.log(error);
+    });
+}
+
 async function renameChat(chats) {
     var rename = new Array();
     chats.forEach(chat => {
@@ -183,7 +216,7 @@ async function downloadImages(chats) {
             writeErrorLog(getDateitalianFormat() + error + " - Errore nel download media per il messaggio: " + element.message_id);
         });
 
-        if(mediaSend.length > 3) {
+        if (mediaSend.length > 3) {
             writeSuccessLog("Preparo invio con ws " + url + '/chats/messages/saveImageMessage');
             writeSendRequestLog("Salvo immagini");
             await request(url + '/chats/messages/saveImageMessage', { data: JSON.stringify(mediaSend) }).then(function(succes) {
@@ -193,7 +226,7 @@ async function downloadImages(chats) {
             });
             mediaSend = new Array();
         }
-        
+
     }
 
 }
@@ -287,4 +320,4 @@ async function writeSuccessLog(stringa) {
     });
 }
 
-module.exports = { renameChat, sincronizza_chat, downloadImages, salvaMessaggio, flagSendMex, getMessagesToSend, inviaMessaggio };
+module.exports = { renameChat, sincronizza_chat, sendInfoChat, downloadImages, salvaMessaggio, flagSendMex, getMessagesToSend, inviaMessaggio };

@@ -306,7 +306,8 @@
                         <ul class="list-unstyled chat-list mt-2 mb-0">
                             <li v-for="(chat,index) in listaChat" v-on:click="openChat(index)">
                                 {{-- Ciclo vue --}}
-                                <img src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="avatar">
+                                <img v-if="chat.url_image != null" :src="chat.url_image" alt="avatar">
+                                <img v-else src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="avatar">
                                 <div class="name">@{{ chat.name }}</div>
                                 <div class="status"> @{{ chat.timestamp_message }}</div>
                             </li>
@@ -317,7 +318,7 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     <a href="javascript:void(0);" data-toggle="modal" data-target="#view_info">
-                                        <img src="https://bootdey.com/img/Content/avatar/avatar2.png" alt="avatar">
+                                        <img :src="url_image_chat" alt="avatar">
                                     </a>
                                     <div class="chat-about">
                                         <h6 class="m-b-0">@{{ name_chat_header }}</h6>
@@ -387,7 +388,9 @@
                 textResponseChat: "",
                 chat_selected: 0,
                 name_chat_header: "",
-                last_message_date: ""
+                last_message_date: "",
+                url_image_chat: "https://bootdey.com/img/Content/avatar/avatar1.png",
+                image_chat: "https://bootdey.com/img/Content/avatar/avatar1.png",
             },
             methods: {
                 openChat(chat_id) {
@@ -397,6 +400,12 @@
                             this.name_chat_header = this.listaChat[chat_id].name;
                             this.last_message_date = this.listaChat[chat_id].timestamp_message;
                             this.chat_selected = this.listaChat[chat_id].chat_id;
+                            if (this.listaChat[chat_id].url_image == null) {
+                                this.url_image_chat = this.image_chat;
+                            } else {
+                                this.url_image_chat = this.listaChat[chat_id].url_image;
+                            }
+
                         });
                 },
                 sendMessage() {

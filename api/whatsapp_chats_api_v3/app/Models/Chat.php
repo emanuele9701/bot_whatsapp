@@ -24,7 +24,7 @@ class Chat extends Model
     public static function allChats($with = false, $sort = "asc")
     {
 
-        $chats = DB::table('chats')->join('chat_messages','chats.chats_id','=','chat_messages.chats_id')->where('isGroup','=',0)->where('body', '!=','')->orderByDesc('chat_messages.timestamp_message')->limit(100)->distinct()->get(['chats.chats_id', 'chats.id','body','chats.name']);
+        $chats = DB::table('chats')->join('chat_messages','chats.chats_id','=','chat_messages.chats_id')->leftJoin('chatinfo','chats.id','=','chatinfo.chat_id')->where('chats.isGroup','=',0)->where('body', '!=','')->orderByDesc('chat_messages.timestamp_message')->limit(100)->distinct()->get(['chats.chats_id', 'chats.id','body','chats.name','chatinfo.url_image']);
         // dd(DB::getQueryLog()[0]['query']);
         // die;
         $chats_ids = [];
@@ -42,6 +42,7 @@ class Chat extends Model
             $chats_ids[$k]['id'] = $chat->id;
             $chats_ids[$k]['chat_id'] = $chat->id;
             $chats_ids[$k]['name'] = $chat->name;
+            $chats_ids[$k]['url_image'] = $chat->url_image;
 
         }
 
