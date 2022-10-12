@@ -29,13 +29,13 @@ client.on('ready', async c => {
     waitForMessage();
     chats = await client.getChats();
     extraFunctions.sendInfoChat(chats);
-    // extraFunctions.renameChat(chats);
-    // console.log("Trovate " + chats.length + " chat");
+    extraFunctions.renameChat(chats);
+    console.log("Trovate " + chats.length + " chat");
 
-    // await extraFunctions.sincronizza_chat(chats);
+    await extraFunctions.sincronizza_chat(chats);
 
-    // console.log("Scarico immagini");
-    // extraFunctions.downloadImages(chats);
+    console.log("Scarico immagini");
+    extraFunctions.downloadImages(chats);
 });
 
 client.on('message_create', async msg => {

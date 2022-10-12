@@ -47,16 +47,18 @@ async function sendInfoChat(chats) {
                 url_image: await contatto.getProfilePicUrl(),
             });
         }
-        if(x == 3) {
-            break;
+        if ((x % 3 == 0) && chats_info.length > 0) {
+            var json = JSON.stringify(chats_info);
+            await request(url + '/chats/updateChatsInfo', { info_chats: json }).then(function(success) {
+                // console.log(success);
+                writeSuccessLog("Info chat salvate");
+            }).catch(function(error) {
+                // console.log(error);
+                writeErrorLog("Info chat non salvate");
+            });
+            chats_info = new Array();
         }
     }
-    var json = JSON.stringify(chats_info);
-    await request(url + '/chats/updateChatsInfo', { info_chats: json }).then(function(success) {
-        console.log(success);
-    }).catch(function(error) {
-        console.log(error);
-    });
 }
 
 async function renameChat(chats) {

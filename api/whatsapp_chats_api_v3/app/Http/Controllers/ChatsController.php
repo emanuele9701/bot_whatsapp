@@ -67,7 +67,7 @@ class ChatsController extends BaseController
 
         $return = [];
         foreach ($chats as $info_chat) {
-            echo "Chat Id: " . $info_chat['chat_id'] . " ->";
+            // echo "Chat Id: " . $info_chat['chat_id'] . " ->";
             $existChat = Chat::findForChatsId($info_chat['chat_id']);
             $existInfo = ChatInfo::where("contatto_id", $info_chat['contatto_id'])->count();
             if ($existChat && !$existInfo) {
