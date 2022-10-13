@@ -13,3 +13,4 @@ yarn-error.log
 api/whatsapp_chats_api_v3/node_modules/*
 *.log
 vendor/
+api\whatsapp_chats_api_v3\.wwebjs_auth
