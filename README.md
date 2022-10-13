@@ -1,3 +1,8 @@
+# Introduzione
+
+Il progetto è volto ad emulare la chat di whatsapp web. 
+Il punto di svolta di questo progetto è quello di renderla multi device senza limitazioni. Ad oggi imposte da whatsapp fino a 5 dispositivi.
+
 ## Requisiti minimi
 
 - Node 14
