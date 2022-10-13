@@ -37,7 +37,7 @@
         }
 
         .chat-app .people-list {
-            width: 280px;
+            width: 350px;
             position: absolute;
             left: 0;
             top: 0;
@@ -47,7 +47,7 @@
         }
 
         .chat-app .chat {
-            margin-left: 280px;
+            margin-left: 350px;
             border-left: 1px solid #eaeaea
         }
 
@@ -306,7 +306,8 @@
                         <ul class="list-unstyled chat-list mt-2 mb-0">
                             <li v-for="(chat,index) in listaChat" v-on:click="openChat(index)">
                                 {{-- Ciclo vue --}}
-                                <img v-if="chat.url_image != null" :src="chat.url_image" alt="avatar">
+                                <img v-if="chat.url_image != null && chat.url_image != ''" :src="chat.url_image"
+                                    alt="avatar">
                                 <img v-else src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="avatar">
                                 <div class="name">@{{ chat.name }}</div>
                                 <div class="status"> @{{ chat.timestamp_message }}</div>
@@ -400,7 +401,8 @@
                             this.name_chat_header = this.listaChat[chat_id].name;
                             this.last_message_date = this.listaChat[chat_id].timestamp_message;
                             this.chat_selected = this.listaChat[chat_id].chat_id;
-                            if (this.listaChat[chat_id].url_image == null) {
+                            if (this.listaChat[chat_id].url_image == null || this.listaChat[chat_id].url_image
+                                .length < 1) {
                                 this.url_image_chat = this.image_chat;
                             } else {
                                 this.url_image_chat = this.listaChat[chat_id].url_image;

@@ -70,7 +70,7 @@ async function waitForMessage() {
             }).catch(function(err) {
                 console.log("Recupero mex errore - " + err);
             });
-            if (listaMessaggi.length > 0) {
+            if (listaMessaggi.instanceof(Array) && listaMessaggi.length > 0) {
                 console.log("Ci sono dei messaggi");
                 for (let x = 0; x < listaMessaggi.length; x++) {
                     const messaggio = listaMessaggi[x];
