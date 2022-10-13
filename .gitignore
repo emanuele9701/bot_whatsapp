@@ -20,7 +20,8 @@ api/whatsapp_chats_api_v3/node_modules/*
 request_log_sended.log
 success.log
 .gitignore
-api/whatsapp_chats_api_v3/storage/framework/cache/data/37/d0/37d0a0437440b46a8594240ab75f0e7bba582bed
-api/whatsapp_chats_api_v3/storage/framework/cache/data/c0/71/c071422490d526a8aada046adf3a9c9fa0593468
+api/whatsapp_chats_api_v3/storage/framework/cache/*
+api/whatsapp_chats_api_v3/storage/framework/views/*
 api\whatsapp_chats_api_v3\vendor
-api\whatsapp_chats_api_v3\.wwebjs_auth
+api/whatsapp_chats_api_v3/.wwebjs_auth/*
+api/whatsapp_chats_api_v3/storage/logs/laravel.log

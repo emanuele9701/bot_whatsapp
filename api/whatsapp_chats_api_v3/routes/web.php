@@ -2,6 +2,7 @@
 
 /** @var \Laravel\Lumen\Routing\Router $router */
 
+use App\Events\NewMessage;
 use App\Http\Controllers\ChatsController;
 use App\Models\Chat;
 use Illuminate\Support\Facades\Route;
@@ -21,13 +22,16 @@ Route::prefix('home')->group(function () {
         $chat = Chat::allChats();
         // echo "<pre>";
         // var_dump($chat);die;
-        return view('home2', [
-            'messageList' => $chat,
-            'pippo'=>'piipo'
-        ]);
+        return view('home2');
     })->name('home');
 });
 
+Route::prefix('test')->group(function () {
+    Route::get('pusher', function () {
+        event(new NewMessage(1));
+        return "Event has been sent!";
+    });
+});
 
 Route::get('/', function () {
     return redirect('home');

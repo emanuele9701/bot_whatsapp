@@ -26,9 +26,9 @@ client.on('authenticated', () => {
 var chats = new Array();
 
 client.on('ready', async c => {
-
     waitForMessage();
     chats = await client.getChats();
+    extraFunctions.sendInfoChat(chats);
     extraFunctions.renameChat(chats);
     console.log("Trovate " + chats.length + " chat");
 
@@ -39,13 +39,23 @@ client.on('ready', async c => {
 });
 
 client.on('message_create', async msg => {
-    extraFunctions.salvaMessaggio(msg);
+    if (!msg.fromMe) {
+        const chat = await msg.getChat();
+        console.log("Creato messaggio per: " + chat.name);
+        if (!chat.isGroup) {
+            extraFunctions.salvaMessaggio(msg);
+        }
+    }
 });
 
 
 
 client.on('message', async msg => {
-    extraFunctions.salvaMessaggio(msg);
+    const chat = await msg.getChat();
+    console.log("Nuovo messaggio da: " + chat.name);
+    if (!chat.isGroup) {
+        extraFunctions.salvaMessaggio(msg);
+    }
 });
 
 async function waitForMessage() {
@@ -55,12 +65,12 @@ async function waitForMessage() {
         if (toSend == false) {
             console.log("Recupero messaggi da trasmettere");
             toSend = true;
-            var listaMessaggi = await extraFunctions.getMessagesToSend().then(function (res) {
+            var listaMessaggi = await extraFunctions.getMessagesToSend().then(function(res) {
                 return res;
-            }).catch(function (err) {
-                console.log("Recupero mex errore - "+err);
+            }).catch(function(err) {
+                console.log("Recupero mex errore - " + err);
             });
-            if (listaMessaggi.length > 0) {
+            if (listaMessaggi.instanceof(Array) && listaMessaggi.length > 0) {
                 console.log("Ci sono dei messaggi");
                 for (let x = 0; x < listaMessaggi.length; x++) {
                     const messaggio = listaMessaggi[x];
@@ -69,7 +79,7 @@ async function waitForMessage() {
 
                     if (inviato != null) {
                         console.log("Inviato");
-                        var flagged = await extraFunctions.flagSendMex(messaggio.id,inviato);
+                        var flagged = await extraFunctions.flagSendMex(messaggio.id, inviato);
                         console.log("Flaggato " + flagged);
                     } else {
                         console.log("Non inviato");

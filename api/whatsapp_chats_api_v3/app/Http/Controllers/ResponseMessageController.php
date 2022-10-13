@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NewMessage;
 use App\Http\Controllers\Controller;
 use App\Models\Response;
 use Illuminate\Http\Request;
@@ -29,6 +30,7 @@ class ResponseMessageController extends Controller
             $idMexSaved = $idMessaggio[0]->id;
         }
         $esitoUpd = Response::where("id", $idMex)->update(['flag_sended' => 1, 'chat_messages_id' => $idMexSaved]);
+        event(new NewMessage(1));
         return ['esito' => $esitoUpd === 1 ? true : false];
     }
 }

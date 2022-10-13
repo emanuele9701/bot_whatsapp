@@ -13,10 +13,12 @@ class Message extends Model
     {
 
         if ($toArray) {
-            $chat = DB::table('chats', 'c')->join('chat_messages as cm', 'cm.chats_id', '=', 'c.chats_id')->where('c.chats_id', '=', $chat_id)->orderBy('cm.timestamp_message', 'desc')->limit(1)->get(['cm.*', 'c.name', 'c.updated_at','c.id as chat_id'])->toArray();
+            $chat = DB::table('chats', 'c')->join('chat_messages as cm', 'cm.chats_id', '=', 'c.chats_id')->where('c.chats_id', '=', $chat_id)->where("cm.body",'<>','')->orderBy('cm.timestamp_message', 'desc')->limit(1)->get(['cm.*', 'c.name', 'c.updated_at','c.id as chat_id'])->toArray();
+
         } else {
-            $chat = DB::table('chats', 'c')->join('chat_messages as cm', 'cm.chats_id', '=', 'c.chats_id')->where('c.chats_id', '=', $chat_id)->orderBy('cm.timestamp_message', 'desc')->limit(1)->get(['cm.*', 'c.name', 'c.updated_at','c.id as chat_id']);
+            $chat = DB::table('chats', 'c')->join('chat_messages as cm', 'cm.chats_id', '=', 'c.chats_id')->where('c.chats_id', '=', $chat_id)->where("cm.body",'<>','""')->orderBy('cm.timestamp_message', 'desc')->limit(1)->get(['cm.*', 'c.name', 'c.updated_at','c.id as chat_id']);
         }
+        
         if (empty($chat) || $chat->count() <= 0) {
             return false;
         } elseif ($classReturn) {

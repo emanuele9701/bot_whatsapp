@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Chat;
+use App\Models\ChatInfo;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 
@@ -24,9 +25,10 @@ class ChatsController extends BaseController
         return $chats;
     }
 
-    public function listChats() {
+    public function listChats()
+    {
         $chat = Chat::allChats();
-        
+
         return $chat;
     }
 
@@ -56,6 +58,34 @@ class ChatsController extends BaseController
             }
         }
 
+        return $return;
+    }
+
+    public function updateChatsInfo(Request $request)
+    {
+        $chats = json_decode($request->input('info_chats'), true);
+
+        $return = [];
+        foreach ($chats as $info_chat) {
+            // echo "Chat Id: " . $info_chat['chat_id'] . " ->";
+            $existChat = Chat::findForChatsId($info_chat['chat_id']);
+            $existInfo = ChatInfo::where("contatto_id", $info_chat['contatto_id'])->count();
+            if ($existChat && !$existInfo) {
+                $chat_info = new ChatInfo();
+                $keys = array_keys($info_chat);
+                for ($d = 0; $d < count($keys); $d++) {
+                    if ($keys[$d] == "contatto_id") {
+                        $chat_info->contatto_id = $info_chat['contatto_id']['_serialized'];
+                    } else if ($keys[$d] == "chat_id") {
+                        $chat_info->chat_id = $existChat['id'];
+                    } else {
+                        $chat_info->{$keys[$d]} = $info_chat[$keys[$d]];
+                    }
+                }
+                $chat_info->save();
+                $return[] = ['chat_id' => $chat_info['chat_id'], 'info_id' => $chat_info->id];
+            }
+        }
         return $return;
     }
 }
