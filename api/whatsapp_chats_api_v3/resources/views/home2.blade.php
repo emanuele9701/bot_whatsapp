@@ -306,11 +306,24 @@
                         <ul class="list-unstyled chat-list mt-2 mb-0">
                             <li v-for="(chat,index) in listaChat" v-on:click="openChat(index)">
                                 {{-- Ciclo vue --}}
-                                <img v-if="chat.url_image != null && chat.url_image != ''" :src="chat.url_image"
-                                    alt="avatar">
-                                <img v-else src="https://bootdey.com/img/Content/avatar/avatar1.png" alt="avatar">
-                                <div class="name">@{{ chat.name }}</div>
-                                <div class="status"> @{{ chat.timestamp_message }}</div>
+                                <table>
+                                    <tr>
+                                        <td rowspan="2">
+                                            <img v-if="chat.url_image != null && chat.url_image != ''"
+                                                :src="chat.url_image" alt="avatar">
+                                            <img v-else src="https://bootdey.com/img/Content/avatar/avatar1.png"
+                                                alt="avatar">
+                                        </td>
+                                        <td>
+                                            <div class="name">@{{ chat.name }}</div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="status" style="text-align: left"> @{{ chat.body | truncate(30, '...') }}</div>
+                                        </td>
+                                    </tr>
+                                </table>
                             </li>
                         </ul>
                     </div>
@@ -466,6 +479,15 @@
             // channel.bind('newMessage', function(data) {
             createApp.reload()
         });
+        var filter = function(text, length, clamp) {
+            clamp = clamp || '...';
+            var node = document.createElement('div');
+            node.innerHTML = text;
+            var content = node.textContent;
+            return content.length > length ? content.slice(0, length) + clamp : content;
+        };
+
+        Vue.filter('truncate', filter);
 
         // createApp({
         //     data() {
