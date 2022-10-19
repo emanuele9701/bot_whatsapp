@@ -6,6 +6,7 @@ use App\Models\Chat;
 use App\Models\ChatInfo;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\DB;
 
 class ChatsController extends BaseController
 {
@@ -28,6 +29,12 @@ class ChatsController extends BaseController
     public function listChats()
     {
         $chat = Chat::allChats();
+
+        return $chat;
+    }
+    public function allCountChat()
+    {
+        $chat = Chat::allCountChat();
 
         return $chat;
     }
@@ -61,6 +68,28 @@ class ChatsController extends BaseController
         return $return;
     }
 
+    public function getChatsInfo($chatId)
+    {
+        $return = [];
+        $infoChat = DB::table('chats')->join('chatinfo', 'chats.id', '=', 'chatinfo.chat_id')->where('chats.id', '=', $chatId)->get(['chatinfo.name', 'chats.updated_at as lastUpdate', 'numero_formattato', 'url_image'])->toArray();
+
+        $allMexForChat = DB::table('chats')->join('chat_messages', 'chats.chats_id', '=', 'chat_messages.chats_id')->where('body', '!=', "")->where('chats.id', '=', $chatId)->get(['body', 'fromMe'])->toArray();
+
+        if (!empty($infoChat)) {
+            $return = [
+                'name' => $infoChat[0]->name,
+                'lastUpdate' => $infoChat[0]->lastUpdate,
+                'numero_formattato' => $infoChat[0]->numero_formattato,
+                'url_image' => $infoChat[0]->url_image,
+            ];
+        }
+
+        if (!empty($allMexForChat)) {
+            $return['listMex'] = $allMexForChat;
+        }
+        return $return;
+    }
+
     public function updateChatsInfo(Request $request)
     {
         $chats = json_decode($request->input('info_chats'), true);
@@ -69,8 +98,13 @@ class ChatsController extends BaseController
         foreach ($chats as $info_chat) {
             // echo "Chat Id: " . $info_chat['chat_id'] . " ->";
             $existChat = Chat::findForChatsId($info_chat['chat_id']);
-            $existInfo = ChatInfo::where("contatto_id", $info_chat['contatto_id'])->count();
-            if ($existChat && !$existInfo) {
+            if ($existChat) {
+                $existInfo = ChatInfo::findByChatId($existChat['id']);
+            } else {
+                $existInfo = -1;
+            }
+
+            if ($existChat && empty($existInfo)) {
                 $chat_info = new ChatInfo();
                 $keys = array_keys($info_chat);
                 for ($d = 0; $d < count($keys); $d++) {
@@ -84,6 +118,8 @@ class ChatsController extends BaseController
                 }
                 $chat_info->save();
                 $return[] = ['chat_id' => $chat_info['chat_id'], 'info_id' => $chat_info->id];
+            } else {
+                $return[] = ['error' => true, 'chat_id' => $info_chat['chat_id']];
             }
         }
         return $return;

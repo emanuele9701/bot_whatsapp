@@ -120,16 +120,19 @@ async function sincronizza_chat(chats) {
             console.log(" ----------- Errore in fetch message -------------");
             console.log(error);
         }).then((messages) => {
-            for (let x = 0; x < messages.length; x++) {
-                const message = messages[x];
-                listMessage.push({
-                    fromMe: message.fromMe,
-                    chats_id: chat.id._serialized,
-                    body: message.body,
-                    timestamp_message: message.timestamp * 1000,
-                    hasMedia: message.hasMedia,
-                    message_id: message.id._serialized
-                });
+            if(messages != undefined) {
+
+                for (let x = 0; x < messages.length; x++) {
+                    const message = messages[x];
+                    listMessage.push({
+                        fromMe: message.fromMe,
+                        chats_id: chat.id._serialized,
+                        body: message.body,
+                        timestamp_message: message.timestamp * 1000,
+                        hasMedia: message.hasMedia,
+                        message_id: message.id._serialized
+                    });
+                }
             }
         });
     }

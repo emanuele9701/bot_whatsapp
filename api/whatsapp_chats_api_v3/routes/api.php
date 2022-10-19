@@ -37,7 +37,9 @@ Route::middleware([LogRoute::class])->group(function () use ($router) {
         Route::get('search/{what?}', [ChatsController::class, 'search_chat'])->name('search_chat');
         Route::post('renameChats', [ChatsController::class, 'renameChats'])->name('rinomina_chat');
         Route::get("listChats", [ChatsController::class, 'listChats'])->name("list_all_chats");
+        Route::get("allCountChat", [ChatsController::class, 'allCountChat'])->name("countAllChat");
         Route::post("updateChatsInfo", [ChatsController::class, 'updateChatsInfo'])->name("update_info_chats");
+        Route::get("getChatsInfo/{chatId}", [ChatsController::class, 'getChatsInfo'])->name("getChatsInfo");
     });
     Route::group(['prefix' => "response"], function () use ($router) {
         Route::get("getListMessages", [ResponseMessageController::class, 'getListMessages'])->name('list_messages_to_send');

@@ -336,7 +336,7 @@
                                     </a>
                                     <div class="chat-about">
                                         <h6 class="m-b-0">@{{ name_chat_header }}</h6>
-                                        <small>@{{ last_message_date }}</small>
+                                        <small>Ultimo aggiornamento @{{ last_message_date }}</small>
                                     </div>
                                 </div>
                             </div>
@@ -410,6 +410,7 @@
                 openChat(chat_id) {
                     axios.get("{{ route('list_all_messages') }}/" + this.listaChat[chat_id].chat_id).then(
                         result => {
+                            console.log(this.listaChat[chat_id],chat_id);
                             this.messages = result.data;
                             this.name_chat_header = this.listaChat[chat_id].name;
                             this.last_message_date = this.listaChat[chat_id].timestamp_message;
