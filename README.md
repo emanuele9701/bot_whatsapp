@@ -16,3 +16,7 @@ Il punto di svolta di questo progetto è quello di renderla multi device senza l
 4. Eseguire il comando <em>php artisan key:generate</em>
 5. Eseguire il comando <em>php artisan migrate</em>
 6. Infine, tornare nella root principale ed eseguire il comando <em>node start.js</em>
+
+
+### Applicazione per android
+Link progetto GitHub: https://github.com/emanuele9701/android_ws_chat
