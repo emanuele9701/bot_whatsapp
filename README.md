@@ -6,7 +6,7 @@ Il punto di svolta di questo progetto è quello di renderla multi device senza l
 ## Requisiti minimi
 
 - Node 14
-- PHP = 7.4
+- PHP >= 7.4
 
 ## Passaggi per attivare il servizio
 
