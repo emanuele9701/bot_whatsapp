@@ -48,6 +48,7 @@ class Message extends Model
     {
         // Controllo se esiste la chat
         $chat = Chat::findForChatsId($message['chats_id']);
+        $message['timestamp_message'] = date("Y-m-d H:i:s",$message['timestamp_message']/1000);
         if (!$chat) {
             Chat::insert(['chats_id' => $message['chats_id'], 'name' => $message['chats_id'], 'timestamp_chat' => $message['timestamp_message'], 'hasNewMex' => isset($chat['hasNewMex']) ? $chat['hasNewMex'] : 0]);
         } else {

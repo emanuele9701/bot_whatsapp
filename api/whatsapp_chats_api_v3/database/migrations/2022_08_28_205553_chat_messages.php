@@ -19,7 +19,7 @@ class ChatMessages extends Migration
             $table->string("chats_id");
             $table->string("message_id");
             $table->text("body");
-            $table->bigInteger("timestamp_message");
+            $table->dateTime("timestamp_message");
             $table->boolean("fromMe")->default(0);
             $table->boolean("hasMedia")->default(0);
             $table->integer("mediaFile")->default(NULL);

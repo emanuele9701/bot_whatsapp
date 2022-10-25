@@ -87,6 +87,7 @@ class Chat extends Model
 
     public static function insert($chat)
     {
+        
         return DB::table('chats')->insert($chat);
     }
 
@@ -121,10 +122,7 @@ class Chat extends Model
         $mx = [];
         $message = Message::findForChatsId($chatId, false, true);
         if ($message !== false) {
-            $message->raw_time = $message->timestamp_message;
-            $today = date("Y-m-d H:i:s", $message->raw_time / 1000);
-            setlocale(LC_ALL, 'Italian_Italy.1250');
-            $message->timestamp_message = ucwords(strftime("%a %d %B %Y", strtotime($today)));
+            $message->timestamp_message = $message->timestamp_message;
             // $message->timestamp_message = date("Y-m-d H:i:s", $message->timestamp_message / 1000);
             $mx[] = $message;
         }
@@ -137,9 +135,7 @@ class Chat extends Model
         $mx = DB::table('chat_messages', 'cm')->join('chats', 'cm.chats_id', '=', 'chats.chats_id')->leftJoin("media_messages", 'media_messages.id', '=', 'cm.mediaFile')->where("body", "!=", "")->where('chats.id', '=', $chat_id)->orderBy('cm.timestamp_message')->get(['cm.*', 'chats.updated_at', 'media_messages.name as nome_immagine']);
 
         foreach ($mx as $key => $m) {
-            $today = date("Y-m-d H:i:s", $m->timestamp_message / 1000);
-            setlocale(LC_ALL, 'Italian_Italy.1250');
-            $mx[$key]->timestamp_message = ucwords(strftime("%a %d %B %Y", strtotime($today)));
+            $mx[$key]->timestamp_message = $m->timestamp_message;
             $mx[$key]->stream = null;
             if ($mx[$key]->nome_immagine != null) {
                 $mx[$key]->nome_immagine = $mx[$key]->nome_immagine;

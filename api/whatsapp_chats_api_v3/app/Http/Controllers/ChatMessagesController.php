@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Pusher\Pusher;
 
 class ChatMessagesController extends Controller
 {
@@ -59,30 +60,60 @@ class ChatMessagesController extends Controller
         if (empty($messages)) {
             return ['esito' => false, 'msg' => 'No message!'];
         }
+        $idChat = [];
         if (isset($messages['fromMe'])) {
-
+            $x = Chat::where("chats_id", $messages['chats_id'])->count();
+            if ($x > 0) {
+                $idChat = Chat::where("chats_id", $messages['chats_id'])->get("id");
+            }
             $probMex = Message::findForMessageId($messages['message_id']);
             if (!$probMex) {
                 Message::insert($messages);
                 Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
-            }
-
-            if ($messages['fromMe'] == false) {
-                event(new NewMessage(1));
+                if ($messages['fromMe'] == false) {
+                    ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage_"+$idChat[0]->id);
+                    ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage");
+                }
             }
         } else {
             foreach ($messages as $message) {
+                $x = Chat::where("chats_id", $messages['chats_id'])->count();
+                if ($x > 0) {
+                    $idChat = Chat::where("chats_id", $messages['chats_id'])->get("id");
+                }
                 $probMex = Message::findForMessageId($message['message_id']);
                 if (!$probMex) {
                     Message::insert($message);
                     Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
-                }
-                if ($message['fromMe']  == false) {
-                    event(new NewMessage(1));
+                    if ($message['fromMe'] == false) {
+                        ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage_"+$idChat[0]->id);
+                        ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage");
+                    }
                 }
             }
         }
         return ['esito' => true, 'msg' => 'Ok'];
+    }
+
+    static function evtNewMessage($channel = "messages", $event, $data = [])
+    {
+        $options = array(
+            'cluster' => env("PUSHER_APP_CLUSTER"),
+            'useTLS' => true
+        );
+        $pusher = new Pusher(
+            env("PUSHER_APP_KEY"),
+            env("PUSHER_APP_SECRET"),
+            env("PUSHER_APP_ID"),
+            $options
+        );
+
+        $toSend = $data;
+        if (strlen($event) <= 0) {
+            return false;
+        }
+
+        $pusher->trigger($channel, $event, $toSend);
     }
 
     public function insertMultiNewMessage(Request $request)
