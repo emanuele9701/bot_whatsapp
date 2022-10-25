@@ -71,7 +71,8 @@ class ChatMessagesController extends Controller
                 Message::insert($messages);
                 Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
                 if ($messages['fromMe'] == false) {
-                    ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage_"+$idChat[0]->id);
+                    $strEvt = "App\Events\NewMessage_".$idChat[0]->id;
+                    ChatMessagesController::evtNewMessage("messages",$strEvt,['chatId' => $idChat[0]->id]);
                     ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage");
                 }
             }
@@ -86,8 +87,9 @@ class ChatMessagesController extends Controller
                     Message::insert($message);
                     Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
                     if ($message['fromMe'] == false) {
-                        ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage_"+$idChat[0]->id);
-                        ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage");
+                        $strEvt = "App\Events\NewMessage_".$idChat[0]->id;
+                        ChatMessagesController::evtNewMessage("messages",$strEvt,['chatId' => $idChat[0]->id]);
+                    ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage");
                     }
                 }
             }

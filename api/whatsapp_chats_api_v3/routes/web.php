@@ -30,7 +30,7 @@ Route::prefix('home')->group(function () {
 
 Route::prefix('test')->group(function () {
     Route::get('pusher', function () {
-        ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage",['ciao' => 1]);
+        ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage_1254",['chatId' => 1254]);
         return "Event has been sent!";
     });
     Route::get('chatLastMex/{id}', function ($id) {

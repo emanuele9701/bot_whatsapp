@@ -38,15 +38,15 @@ client.on('ready', async c => {
     extraFunctions.downloadImages(chats);
 });
 
-client.on('message_create', async msg => {
-    if (!msg.fromMe) {
-        const chat = await msg.getChat();
-        console.log("Creato messaggio per: " + chat.name);
-        if (!chat.isGroup) {
-            extraFunctions.salvaMessaggio(msg);
-        }
-    }
-});
+// client.on('message_create', async msg => {
+//     if (!msg.fromMe) {
+//         const chat = await msg.getChat();
+//         console.log("Creato messaggio per: " + chat.name);
+//         if (!chat.isGroup) {
+//             extraFunctions.salvaMessaggio(msg);
+//         }
+//     }
+// });
 
 
 
