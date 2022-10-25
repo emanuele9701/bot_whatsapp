@@ -3,8 +3,10 @@
 /** @var \Laravel\Lumen\Routing\Router $router */
 
 use App\Events\NewMessage;
+use App\Http\Controllers\ChatMessagesController;
 use App\Http\Controllers\ChatsController;
 use App\Models\Chat;
+use App\Models\Message;
 use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
@@ -28,8 +30,13 @@ Route::prefix('home')->group(function () {
 
 Route::prefix('test')->group(function () {
     Route::get('pusher', function () {
-        event(new NewMessage(1));
+        ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage",['ciao' => 1]);
         return "Event has been sent!";
+    });
+    Route::get('chatLastMex/{id}', function ($id) {
+        echo "<pre>";
+        var_dump(Chat::getChatsLastMessaggeByChatId($id));
+        die;
     });
 });
 

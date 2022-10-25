@@ -28,11 +28,11 @@ var chats = new Array();
 client.on('ready', async c => {
     waitForMessage();
     chats = await client.getChats();
+    await extraFunctions.sincronizza_chat(chats);
     extraFunctions.sendInfoChat(chats);
     extraFunctions.renameChat(chats);
     console.log("Trovate " + chats.length + " chat");
 
-    await extraFunctions.sincronizza_chat(chats);
 
     console.log("Scarico immagini");
     extraFunctions.downloadImages(chats);
@@ -70,7 +70,7 @@ async function waitForMessage() {
             }).catch(function(err) {
                 console.log("Recupero mex errore - " + err);
             });
-            if (listaMessaggi.instanceof(Array) && listaMessaggi.length > 0) {
+            if (listaMessaggi != undefined && listaMessaggi.length > 0) {
                 console.log("Ci sono dei messaggi");
                 for (let x = 0; x < listaMessaggi.length; x++) {
                     const messaggio = listaMessaggi[x];

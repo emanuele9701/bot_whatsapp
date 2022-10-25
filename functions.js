@@ -120,16 +120,19 @@ async function sincronizza_chat(chats) {
             console.log(" ----------- Errore in fetch message -------------");
             console.log(error);
         }).then((messages) => {
-            for (let x = 0; x < messages.length; x++) {
-                const message = messages[x];
-                listMessage.push({
-                    fromMe: message.fromMe,
-                    chats_id: chat.id._serialized,
-                    body: message.body,
-                    timestamp_message: message.timestamp * 1000,
-                    hasMedia: message.hasMedia,
-                    message_id: message.id._serialized
-                });
+            if(messages != undefined) {
+
+                for (let x = 0; x < messages.length; x++) {
+                    const message = messages[x];
+                    listMessage.push({
+                        fromMe: message.fromMe,
+                        chats_id: chat.id._serialized,
+                        body: message.body,
+                        timestamp_message: message.timestamp * 1000,
+                        hasMedia: message.hasMedia,
+                        message_id: message.id._serialized
+                    });
+                }
             }
         });
     }
@@ -201,6 +204,7 @@ async function downloadImages(chats) {
         }).catch(function(error) {
             writeErrorLog(getDateitalianFormat() + error + " - Errore nel recupero messaggi per la chat: " + id.chats_id);
         });
+        await sleep(500);
     }
 
     for (let x = 0; x < mediaToDownload.length; x++) {
@@ -228,7 +232,7 @@ async function downloadImages(chats) {
             });
             mediaSend = new Array();
         }
-
+        await sleep(1000);
     }
 
 }
@@ -309,16 +313,22 @@ function getChatById(idChat, chats) {
 }
 
 async function writeErrorLog(stringa) {
-    // console.log("ERRORE: " + stringa);
+    console.log("ERRORE: " + stringa);
     fs.appendFileSync('error.log', stringa + "\n", function(err) {
         if (err) return console.log(err);
     });
 }
 
 async function writeSuccessLog(stringa) {
-    // console.log("SUCCESSO: " + stringa);
+    console.log("SUCCESSO: " + stringa);
     fs.appendFileSync('success.log', stringa + "\n", function(err) {
         if (err) return console.log(err);
+    });
+}
+
+function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
     });
 }
 

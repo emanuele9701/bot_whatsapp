@@ -16,9 +16,8 @@ class Message extends Model
             $chat = DB::table('chats', 'c')->join('chat_messages as cm', 'cm.chats_id', '=', 'c.chats_id')->where('c.chats_id', '=', $chat_id)->where("cm.body",'<>','')->orderBy('cm.timestamp_message', 'desc')->limit(1)->get(['cm.*', 'c.name', 'c.updated_at','c.id as chat_id'])->toArray();
 
         } else {
-            $chat = DB::table('chats', 'c')->join('chat_messages as cm', 'cm.chats_id', '=', 'c.chats_id')->where('c.chats_id', '=', $chat_id)->where("cm.body",'<>','""')->orderBy('cm.timestamp_message', 'desc')->limit(1)->get(['cm.*', 'c.name', 'c.updated_at','c.id as chat_id']);
+            $chat = DB::table('chats', 'c')->join('chat_messages as cm', 'cm.chats_id', '=', 'c.chats_id')->where('c.chats_id', '=', $chat_id)->where("cm.body",'<>','')->orderBy('cm.timestamp_message', 'desc')->limit(1)->get(['cm.*', 'c.name', 'c.updated_at','c.id as chat_id']);
         }
-        
         if (empty($chat) || $chat->count() <= 0) {
             return false;
         } elseif ($classReturn) {
@@ -49,6 +48,7 @@ class Message extends Model
     {
         // Controllo se esiste la chat
         $chat = Chat::findForChatsId($message['chats_id']);
+        $message['timestamp_message'] = date("Y-m-d H:i:s",$message['timestamp_message']/1000);
         if (!$chat) {
             Chat::insert(['chats_id' => $message['chats_id'], 'name' => $message['chats_id'], 'timestamp_chat' => $message['timestamp_message'], 'hasNewMex' => isset($chat['hasNewMex']) ? $chat['hasNewMex'] : 0]);
         } else {
