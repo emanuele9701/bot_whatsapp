@@ -7,6 +7,7 @@ use App\Models\ChatInfo;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ChatsController extends BaseController
 {
@@ -58,7 +59,7 @@ class ChatsController extends BaseController
             $myChat = Chat::findForChatsId($chat['chats_id']);
             // var_dump($myChat);die;
             if (!$myChat) {
-                $chat['timestamp_chat'] = date("Y-m-d H:i:s",$chat['timestamp_chat']/1000);
+                $chat['timestamp_chat'] = date("Y-m-d H:i:s", $chat['timestamp_chat'] / 1000);
                 $idChat = Chat::insert($chat);
                 $return[] = ['chat' => $chat['chats_id'], 'idChatDb' => $idChat];
             } else {
@@ -72,10 +73,10 @@ class ChatsController extends BaseController
     public function getChatsInfo($chatId)
     {
         $return = [];
-        $infoChat = DB::table('chats')->leftJoin('chatinfo', 'chats.id', '=', 'chatinfo.chat_id')->where('chats.id', '=', $chatId)->get(['chats.name as name_chat','chatinfo.name as name_info', 'chats.updated_at as lastUpdate', 'numero_formattato', 'url_image','chats.id as idChat'])->toArray();
-        
+        $infoChat = DB::table('chats')->leftJoin('chatinfo', 'chats.id', '=', 'chatinfo.chat_id')->where('chats.id', '=', $chatId)->get(['chats.name as name_chat', 'chatinfo.name as name_info', 'chats.updated_at as lastUpdate', 'numero_formattato', 'url_image', 'chats.id as idChat'])->toArray();
 
-        $allMexForChat = DB::table('chats')->join('chat_messages', 'chats.chats_id', '=', 'chat_messages.chats_id')->where('body', '!=', "")->where('chats.id', '=', $chatId)->get(['body', 'fromMe'])->toArray();
+
+        $allMexForChat = DB::table('chats')->join('chat_messages', 'chats.chats_id', '=', 'chat_messages.chats_id')->leftJoin("media_messages", 'media_messages.id', '=', 'chat_messages.mediaFile')->where('chats.id', '=', $chatId)->get(['body', 'fromMe', 'mediaFile','media_messages.name as nome_immagine'])->toArray();
 
         if (!empty($infoChat)) {
             $return = [
@@ -85,7 +86,7 @@ class ChatsController extends BaseController
                 'url_image' => $infoChat[0]->url_image,
                 'chat_id' => $infoChat[0]->idChat
             ];
-            if($infoChat[0]->name_info == null) {
+            if ($infoChat[0]->name_info == null) {
                 $return['name'] = $infoChat[0]->name_chat;
             } else {
                 $return['name'] = $infoChat[0]->name_info;
@@ -93,6 +94,15 @@ class ChatsController extends BaseController
         }
 
         if (!empty($allMexForChat)) {
+            foreach ($allMexForChat as $key => $mex) {
+                if(strlen($mex->body) == 0 && $mex->mediaFile == 0) {
+                    continue;
+                }
+                if (is_numeric($mex->mediaFile) && $mex->mediaFile > 0) {
+                    $allMexForChat[$key]->nome_immagine = $allMexForChat[$key]->nome_immagine;
+                    $allMexForChat[$key]->stream = base64_encode(Storage::disk('local2')->get($allMexForChat[$key]->nome_immagine));
+                }
+            }
             $return['listMex'] = $allMexForChat;
         }
         return $return;
