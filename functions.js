@@ -120,7 +120,7 @@ async function sincronizza_chat(chats) {
             console.log(" ----------- Errore in fetch message -------------");
             console.log(error);
         }).then((messages) => {
-            if(messages != undefined) {
+            if (messages != undefined) {
 
                 for (let x = 0; x < messages.length; x++) {
                     const message = messages[x];
@@ -204,7 +204,7 @@ async function downloadImages(chats) {
         }).catch(function(error) {
             writeErrorLog(getDateitalianFormat() + error + " - Errore nel recupero messaggi per la chat: " + id.chats_id);
         });
-        await sleep(500);
+        await sleep(750);
     }
 
     for (let x = 0; x < mediaToDownload.length; x++) {
@@ -235,6 +235,15 @@ async function downloadImages(chats) {
         await sleep(1000);
     }
 
+    if (mediaSend.length > 0) {
+        writeSendRequestLog("Salvo immagini");
+        await request(url + '/chats/messages/saveImageMessage', { data: JSON.stringify(mediaSend) }).then(function(succes) {
+            writeSuccessLog("Inviati con successo!");
+        }).catch(function(error) {
+            writeErrorLog("Errore nell'invio. " + error);
+        });
+    }
+
 }
 
 async function salvaMessaggio(msg) {
@@ -256,6 +265,7 @@ async function salvaMessaggio(msg) {
     let data = JSON.stringify(msgSend);
     let buff = new Buffer.from(data);
     let base64data = buff.toString('base64');
+
     await request(url + "/chats/messages/insertNewMessage", { message: base64data }).catch(function(err) {
         console.log("Errore", err);
         error = true;

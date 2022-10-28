@@ -21,7 +21,7 @@ class Chat extends Model
         }
     }
 
-    public static function allChats($with = false, $sort = "asc")
+    public static function allChats($with = false, $sort = "asc",$limit = 100)
     {
         /**
          * SELECT c.name, cm.chats_id,body,cm.timestamp_message,fromMe,hasMedia,mediaFile,cm.hasNewMex
@@ -29,7 +29,7 @@ class Chat extends Model
                 WHERE cm.body != ""
                 ORDER BY cm.timestamp_message asc;
          */
-        $chats = DB::table('chats')->join('chat_messages','chats.chats_id','=','chat_messages.chats_id')->leftJoin('chatinfo', 'chats.id', '=', 'chatinfo.chat_id')->where('chats.isGroup', '=', 0)->orderByDesc('chat_messages.timestamp_message')->get(['chats.chats_id', 'chats.id', 'chats.name', 'chatinfo.url_image']);
+        $chats = DB::table('chats')->join('chat_messages','chats.chats_id','=','chat_messages.chats_id')->leftJoin('chatinfo', 'chats.id', '=', 'chatinfo.chat_id')->where('chats.isGroup', '=', 0)->orderByDesc('chat_messages.timestamp_message')->limit($limit)->get(['chats.chats_id', 'chats.id', 'chats.name', 'chatinfo.url_image']);
         // dd(DB::getQueryLog()[0]['query']);
         // die;
         $chats_ids = [];

@@ -57,6 +57,7 @@ class ChatMessagesController extends Controller
     public function insertNewMessage(Request $request)
     {
         $messages = json_decode(base64_decode($request->input('message')), true);
+        // var_dump(base64_decode($request->input('message')));die;
         if (empty($messages)) {
             return ['esito' => false, 'msg' => 'No message!'];
         }
@@ -66,14 +67,15 @@ class ChatMessagesController extends Controller
             if ($x > 0) {
                 $idChat = Chat::where("chats_id", $messages['chats_id'])->get("id");
             }
+            // var_dump($idChat[0]);die;
             $probMex = Message::findForMessageId($messages['message_id']);
             if (!$probMex) {
                 Message::insert($messages);
                 Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
                 if ($messages['fromMe'] == false) {
-                    $strEvt = "App\Events\NewMessage_".$idChat[0]->id;
-                    ChatMessagesController::evtNewMessage("messages",$strEvt,['chatId' => $idChat[0]->id]);
-                    ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage");
+                    $strEvt = "App\Events\NewMessage_" . $idChat[0]->id;
+                    ChatMessagesController::evtNewMessage("messages", $strEvt, ['chatId' => $idChat[0]->id]);
+                    ChatMessagesController::evtNewMessage("messages", "App\Events\NewMessage");
                 }
             }
         } else {
@@ -87,9 +89,9 @@ class ChatMessagesController extends Controller
                     Message::insert($message);
                     Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
                     if ($message['fromMe'] == false) {
-                        $strEvt = "App\Events\NewMessage_".$idChat[0]->id;
-                        ChatMessagesController::evtNewMessage("messages",$strEvt,['chatId' => $idChat[0]->id]);
-                    ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage");
+                        $strEvt = "App\Events\NewMessage_" . $idChat[0]->id;
+                        ChatMessagesController::evtNewMessage("messages", $strEvt, ['chatId' => $idChat[0]->id]);
+                        ChatMessagesController::evtNewMessage("messages", "App\Events\NewMessage");
                     }
                 }
             }
@@ -169,7 +171,7 @@ class ChatMessagesController extends Controller
         if (!empty($messaggioCercato)) {
             return ['esito' => false, 'msg' => "Già inserita"];
         }
-        $findChat = DB::table("chat_messages")->where("message_id", '=', $message_id)->get()->toArray();
+        $findChat = DB::table("chat_messages")->join('chats','chats.chats_id','=','chat_messages.chats_id')->where("chat_messages.message_id", '=', $message_id)->get(['chat_messages.*','chats.id as idChat'])->toArray();
         $chats_id = null;
         if (!empty($findChat)) {
             $chats_id = $findChat[0]->chats_id;
@@ -187,7 +189,9 @@ class ChatMessagesController extends Controller
             $media->save();
 
             Message::where('message_id', $message_id)->update(['mediaFile' => $media->id, 'hasMedia' => false]);
-
+            $strEvt = "App\Events\NewMessage_" . $findChat[0]->idChat;
+            ChatMessagesController::evtNewMessage("messages", $strEvt, ['chatId' => $findChat[0]->idChat]);
+            ChatMessagesController::evtNewMessage("messages", "App\Events\NewMessage");
             return ['esito' => true, 'imamgine_id' => $media->id];
         }
         return ['esito' => false, 'msg' => "Errore"];
