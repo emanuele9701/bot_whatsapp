@@ -29,11 +29,7 @@ client.on('ready', async c => {
     waitForMessage();
     chats = await client.getChats();
     console.log("Trovate " + chats.length + " chat");
-    // await extraFunctions.sincronizza_chat(chats);
-    // extraFunctions.sendInfoChat(chats);
-    // extraFunctions.renameChat(chats);
-
-
+    extraFunctions.sincronizza_chat(chats);
     console.log("Scarico immagini");
     extraFunctions.downloadImages(chats);
 });
@@ -43,7 +39,7 @@ client.on('message_create', async msg => {
         const chat = await msg.getChat();
         console.log("Creato messaggio per: " + chat.name);
         if (!chat.isGroup) {
-            extraFunctions.salvaMessaggio(msg);
+            //extraFunctions.salvaMessaggio(msg);
         }
     }
 });

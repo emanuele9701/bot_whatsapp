@@ -76,7 +76,7 @@ class ChatsController extends BaseController
         $infoChat = DB::table('chats')->leftJoin('chatinfo', 'chats.id', '=', 'chatinfo.chat_id')->where('chats.id', '=', $chatId)->get(['chats.name as name_chat', 'chatinfo.name as name_info', 'chats.updated_at as lastUpdate', 'numero_formattato', 'url_image', 'chats.id as idChat'])->toArray();
 
 
-        $allMexForChat = DB::table('chats')->join('chat_messages', 'chats.chats_id', '=', 'chat_messages.chats_id')->leftJoin("media_messages", 'media_messages.id', '=', 'chat_messages.mediaFile')->where('chats.id', '=', $chatId)->get(['body', 'fromMe', 'mediaFile','media_messages.name as nome_immagine'])->toArray();
+        $allMexForChat = DB::table('chats')->join('chat_messages', 'chats.chats_id', '=', 'chat_messages.chats_id')->leftJoin("media_messages", 'media_messages.id', '=', 'chat_messages.mediaFile')->where('chats.id', '=', $chatId)->get(['body', 'fromMe', 'mediaFile','media_messages.name as nome_immagine','media_messages.type'])->toArray();
 
         if (!empty($infoChat)) {
             $return = [
@@ -94,24 +94,38 @@ class ChatsController extends BaseController
         }
 
         if (!empty($allMexForChat)) {
+            $messaggi = [];
             foreach ($allMexForChat as $key => $mex) {
+                $messaggio = [];
                 if(strlen($mex->body) == 0 && $mex->mediaFile == 0) {
                     continue;
                 }
-                if (is_numeric($mex->mediaFile) && $mex->mediaFile > 0) {
-                    $allMexForChat[$key]->nome_immagine = $allMexForChat[$key]->nome_immagine;
-                    $allMexForChat[$key]->stream = base64_encode(Storage::disk('local2')->get($allMexForChat[$key]->nome_immagine));
+                $messaggio['body'] = $mex->body;
+                $messaggio['fromMe'] = $mex->fromMe;
+                $messaggio['mediaFile'] = $mex->mediaFile;
+
+                $media = null;
+                if (is_numeric($mex->mediaFile) && $mex->mediaFile > 0) {                    
+                    $media['nome_immagine'] = $allMexForChat[$key]->nome_immagine;
+                    if($allMexForChat[$key]->type == "audio") {
+                        $media['stream'] = base64_encode(Storage::disk('local2')->get($allMexForChat[$key]->nome_immagine));
+                    } else {
+                        $media['stream'] = base64_encode(Storage::disk('local2')->get($allMexForChat[$key]->nome_immagine));
+                    }
+                    $media['tipo'] = $allMexForChat[$key]->type;
                 }
+                $messaggio['media'] = $media;
+                $messaggi[] = $messaggio;
             }
-            $return['listMex'] = $allMexForChat;
+            $return['listMex'] = $messaggi;
         }
         return $return;
     }
 
     public function updateChatsInfo(Request $request)
     {
-        $chats = json_decode($request->input('info_chats'), true);
-
+        $chats = json_decode(base64_decode($request->input('info_chats')), true);
+        
         $return = [];
         foreach ($chats as $info_chat) {
             // echo "Chat Id: " . $info_chat['chat_id'] . " ->";
@@ -121,8 +135,8 @@ class ChatsController extends BaseController
             } else {
                 $existInfo = -1;
             }
-
-            if ($existChat && empty($existInfo)) {
+            
+            if (!empty($existChat) && $existInfo->count() == 0) {
                 $chat_info = new ChatInfo();
                 $keys = array_keys($info_chat);
                 for ($d = 0; $d < count($keys); $d++) {

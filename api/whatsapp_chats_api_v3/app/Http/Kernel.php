@@ -2,7 +2,9 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\LogActivity;
 use App\Http\Middleware\LogRoute;
+use App\Models\MyLog;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 
 class Kernel extends HttpKernel
@@ -45,7 +47,7 @@ class Kernel extends HttpKernel
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:60,1',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-            'log.route' => LogRoute::class
+            LogActivity::class
         ],
     ];
 
@@ -66,5 +68,6 @@ class Kernel extends HttpKernel
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+        'log' => LogActivity::class
     ];
 }

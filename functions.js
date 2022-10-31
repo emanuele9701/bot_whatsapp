@@ -2,8 +2,9 @@ const url = "http://localhost/bot_whatsapp/api/whatsapp_chats_api_v3/public/inde
 const axios = require("axios/index.js");
 const fs = require('fs');
 const { Client } = require("whatsapp-web.js");
+var justCalled = false;
 async function request(url_request, data_post = {}, method = 'post') {
-
+    await sleep(getRandomNum());
     const params = new URLSearchParams();
 
     Object.entries(data_post).forEach(entry => {
@@ -11,7 +12,7 @@ async function request(url_request, data_post = {}, method = 'post') {
         params.append(key, value);
     });
 
-    return await axios({
+    var result = await axios({
         method: method,
         maxContentLength: Infinity,
         maxBodyLength: Infinity,
@@ -19,6 +20,7 @@ async function request(url_request, data_post = {}, method = 'post') {
         url: url_request,
         data: params,
     })
+    return result;
 }
 
 async function getMessagesToSend() {
@@ -47,17 +49,16 @@ async function sendInfoChat(chats) {
                 url_image: await contatto.getProfilePicUrl(),
             });
         }
-        if ((x % 3 == 0) && chats_info.length > 0) {
-            var json = JSON.stringify(chats_info);
-            await request(url + '/chats/updateChatsInfo', { info_chats: json }).then(function(success) {
-                // console.log(success);
-                writeSuccessLog("Info chat salvate");
-            }).catch(function(error) {
-                // console.log(error);
-                writeErrorLog("Info chat non salvate");
-            });
-            chats_info = new Array();
-        }
+
+        var json = new Buffer.from(JSON.stringify(chats_info));
+        await request(url + '/chats/updateChatsInfo', { info_chats: json.toString('base64') }).then(function(success) {
+            // console.log(success);
+            writeSuccessLog("Info chat salvate");
+        }).catch(function(error) {
+            // console.log(error);
+            writeErrorLog("Info chat non salvate");
+        });
+        chats_info = new Array();
     }
 }
 
@@ -101,7 +102,7 @@ async function flagSendMex(mex_id, id_mex_saved) {
 }
 
 async function sincronizza_chat(chats) {
-    // console.log("Sicronizza chat");
+
     var listChats = new Array();
     var listMessage = new Array();
     for (let index = 0; index < chats.length; index++) {
@@ -147,7 +148,6 @@ async function sincronizza_chat(chats) {
         }
     }).catch((err) => {
         console.log("Errore nell'aggiunta delle chat");
-        console.log(err);
     })
 
     await request(url + "/chats/messages/insertMultiNewMessage", { message: Buffer.from(JSON.stringify(listMessage)).toString('base64') }).then((res) => {
@@ -158,8 +158,10 @@ async function sincronizza_chat(chats) {
         }
     }).catch((err) => {
         console.log("Errore nell'aggiunta del mex");
-        console.log(err);
     })
+
+    sendInfoChat(chats);
+
     return true;
 }
 
@@ -189,8 +191,9 @@ async function downloadImages(chats) {
         }
         await c.fetchMessages({ limit: 1000 }).then(function(messaggi) {
             writeSuccessLog("Recuperati: " + messaggi.length);
-            messaggi.forEach(function(messaggio) {
-                writeSuccessLog("Cerco messaggio: " + id.message_id);
+            writeSuccessLog("Cerco messaggio: " + id.message_id);
+            for (let idx = 0; idx < messaggi.length; idx++) {
+                const messaggio = messaggi[idx];
                 if (messaggio.id._serialized == id.message_id) {
                     writeSuccessLog("Trovato, scarico i media");
                     // Scarico i media
@@ -199,45 +202,51 @@ async function downloadImages(chats) {
                         message_id: id.message_id,
                         ws_messaggio: messaggio
                     });
+                    break;
                 }
-            });
+            }
         }).catch(function(error) {
             writeErrorLog(getDateitalianFormat() + error + " - Errore nel recupero messaggi per la chat: " + id.chats_id);
         });
-        await sleep(750);
     }
 
     for (let x = 0; x < mediaToDownload.length; x++) {
+        var dormoSl = getRandomNum();
+        console.log("Dormo per: "+dormoSl);
+        await sleep(dormoSl);
         const element = mediaToDownload[x];
         var messaggio = element.ws_messaggio;
         writeSuccessLog("Scarico media per " + element.message_id);
         await messaggio.downloadMedia().then(function(media) {
-            mediaSend.push({
-                chats_id: element.chats_id,
-                messageId: element.message_id,
-                base64data: media.data
-            });
-            writeSuccessLog(getDateitalianFormat() + " Scaricato media per " + element.message_id);
+            if(media != undefined) {
+                mediaSend.push({
+                    chats_id: element.chats_id,
+                    messageId: element.message_id,
+                    base64data: media.data,
+                    mime: media.mimetype
+                });
+                writeSuccessLog(getDateitalianFormat() + " Scaricato media per " + element.message_id);
+            }
         }).catch(function(error) {
             writeErrorLog(getDateitalianFormat() + error + " - Errore nel download media per il messaggio: " + element.message_id);
         });
 
         if (mediaSend.length > 3) {
-            writeSuccessLog("Preparo invio con ws " + url + '/chats/messages/saveImageMessage');
+            writeSuccessLog("Preparo invio con ws " + url + '/chats/messages/saveMediaMessage');
             writeSendRequestLog("Salvo immagini");
-            await request(url + '/chats/messages/saveImageMessage', { data: JSON.stringify(mediaSend) }).then(function(succes) {
+            var json = new Buffer.from(JSON.stringify(mediaSend));
+            await request(url + '/chats/messages/saveMediaMessage', { data: json.toString('base64') }).then(function(succes) {
                 writeSuccessLog("Inviati con successo!");
             }).catch(function(error) {
                 writeErrorLog("Errore nell'invio. " + error);
             });
             mediaSend = new Array();
         }
-        await sleep(1000);
     }
 
     if (mediaSend.length > 0) {
         writeSendRequestLog("Salvo immagini");
-        await request(url + '/chats/messages/saveImageMessage', { data: JSON.stringify(mediaSend) }).then(function(succes) {
+        await request(url + '/chats/messages/saveMediaMessage', { data: JSON.stringify(mediaSend) }).then(function(succes) {
             writeSuccessLog("Inviati con successo!");
         }).catch(function(error) {
             writeErrorLog("Errore nell'invio. " + error);
@@ -270,7 +279,7 @@ async function salvaMessaggio(msg) {
         console.log("Errore", err);
         error = true;
     }).then(function(ok) {
-        // console.log("Successo");
+        console.log("Successo");
     });
 
     if (msg.hasMedia) {
@@ -280,7 +289,8 @@ async function salvaMessaggio(msg) {
             mediaFile = {
                 chats_id: msg.from,
                 messageId: msg.id._serialized,
-                base64data: mediaScaricato.data
+                base64data: mediaScaricato.data,
+                mime: mediaScaricato.mimetype
             }
             writeSuccessLog("Salvataggio messaggio: Media scaricato");
         }).catch(function(error) {
@@ -288,12 +298,14 @@ async function salvaMessaggio(msg) {
             error = true;
             writeErrorLog("Salvataggio messaggio: Media non scaricato per " + error);
         })
+
         if (mediaFile != null) {
-            await request(url + '/chats/messages/saveImageMessage', { data: JSON.stringify(mediaFile) }).then(function(succes) {
+            var json = new Buffer.from(JSON.stringify(mediaFile));
+            await request(url + '/chats/messages/saveMediaMessage', { data: json.toString('base64') }).then(function(succes) {
                 writeSuccessLog("Salvataggio messaggio: Inviati con successo!");
             }).catch(function(error) {
-                error = true;
                 writeErrorLog("Salvataggio messaggio: Errore nell'invio. " + error);
+                error = true;
             });
         }
     }
@@ -340,6 +352,10 @@ function sleep(ms) {
     return new Promise((resolve) => {
         setTimeout(resolve, ms);
     });
+}
+
+function getRandomNum() {
+    return Math.floor(Math.random() * 1000);
 }
 
 module.exports = { renameChat, sincronizza_chat, sendInfoChat, downloadImages, salvaMessaggio, flagSendMex, getMessagesToSend, inviaMessaggio };
