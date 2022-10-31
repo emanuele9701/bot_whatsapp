@@ -76,7 +76,7 @@ class ChatsController extends BaseController
         $infoChat = DB::table('chats')->leftJoin('chatinfo', 'chats.id', '=', 'chatinfo.chat_id')->where('chats.id', '=', $chatId)->get(['chats.name as name_chat', 'chatinfo.name as name_info', 'chats.updated_at as lastUpdate', 'numero_formattato', 'url_image', 'chats.id as idChat'])->toArray();
 
 
-        $allMexForChat = DB::table('chats')->join('chat_messages', 'chats.chats_id', '=', 'chat_messages.chats_id')->leftJoin("media_messages", 'media_messages.id', '=', 'chat_messages.mediaFile')->where('chats.id', '=', $chatId)->get(['body', 'fromMe', 'mediaFile','media_messages.name as nome_immagine','media_messages.type'])->toArray();
+        $allMexForChat = DB::table('chats')->join('chat_messages', 'chats.chats_id', '=', 'chat_messages.chats_id')->leftJoin("media_messages", 'media_messages.id', '=', 'chat_messages.mediaFile')->where('chats.id', '=', $chatId)->orderByDesc("chat_messages.timestamp_message")->limit(30)->get(['body', 'fromMe', 'mediaFile','media_messages.name as nome_immagine','media_messages.type'])->toArray();
 
         if (!empty($infoChat)) {
             $return = [
