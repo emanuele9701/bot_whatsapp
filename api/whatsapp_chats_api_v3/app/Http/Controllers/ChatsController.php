@@ -70,13 +70,16 @@ class ChatsController extends BaseController
         return $return;
     }
 
-    public function getChatsInfo($chatId,$limit = 35)
+    public function getChatsInfo($chatId,$limit = 35,$onlyInfo = false)
     {
         $return = [];
-        $infoChat = DB::table('chats')->leftJoin('chatinfo', 'chats.id', '=', 'chatinfo.chat_id')->where('chats.id', '=', $chatId)->get(['chats.name as name_chat', 'chatinfo.name as name_info', 'chats.updated_at as lastUpdate', 'numero_formattato', 'url_image', 'chats.id as idChat'])->toArray();
+        $infoChat = DB::table('chats')->leftJoin('chatinfo', 'chats.id', '=', 'chatinfo.chat_id')->where('chats.id', '=', $chatId)->get(['chats.name as name_chat', 'chatinfo.name as name_info', 'chats.updated_at as lastUpdate', 'numero_formattato', 'url_image', 'chats.id as idChat','chatinfo.haveWhatsApp','chatinfo.isBlocked'])->toArray();
 
+        if($onlyInfo == false) {
 
-        $allMexForChat = DB::table('chats')->join('chat_messages', 'chats.chats_id', '=', 'chat_messages.chats_id')->leftJoin("media_messages", 'media_messages.id', '=', 'chat_messages.mediaFile')->where('chats.id', '=', $chatId)->get(['body', 'fromMe', 'mediaFile','media_messages.name as nome_immagine','media_messages.type'])->toArray();
+            $allMexForChat = DB::table('chats')->join('chat_messages', 'chats.chats_id', '=', 'chat_messages.chats_id')->leftJoin("media_messages", 'media_messages.id', '=', 'chat_messages.mediaFile')->where('chats.id', '=', $chatId)->get(['body', 'fromMe', 'mediaFile','media_messages.name as nome_immagine','media_messages.type','chat_messages.timestamp_message'])->toArray();
+            
+        }
 
         if (!empty($infoChat)) {
             $return = [
@@ -84,6 +87,8 @@ class ChatsController extends BaseController
                 'lastUpdate' => $infoChat[0]->lastUpdate,
                 'numero_formattato' => $infoChat[0]->numero_formattato,
                 'url_image' => $infoChat[0]->url_image,
+                'haveWhatsApp' => $infoChat[0]->haveWhatsApp,
+                'isBlocked' => $infoChat[0]->isBlocked,
                 'chat_id' => $infoChat[0]->idChat
             ];
             if ($infoChat[0]->name_info == null) {
@@ -93,7 +98,7 @@ class ChatsController extends BaseController
             }
         }
 
-        if (!empty($allMexForChat)) {
+        if (!empty($allMexForChat) && $onlyInfo == false) {
             $messaggi = [];
             foreach ($allMexForChat as $key => $mex) {
                 $messaggio = [];
@@ -103,7 +108,8 @@ class ChatsController extends BaseController
                 $messaggio['body'] = $mex->body;
                 $messaggio['fromMe'] = $mex->fromMe;
                 $messaggio['mediaFile'] = $mex->mediaFile;
-
+                $messaggio['timestamp_message'] = $mex->timestamp_message;
+                $messaggio['mittente'] = $return['name'];
                 $media = null;
                 if (is_numeric($mex->mediaFile) && $mex->mediaFile > 0) {                    
                     $media['nome_immagine'] = $allMexForChat[$key]->nome_immagine;
@@ -118,9 +124,9 @@ class ChatsController extends BaseController
                 $messaggi[] = $messaggio;
             }
             $return['listMex'] = $messaggi;
+            $return['listMex'] = array_chunk($return['listMex'],$limit);
+            $return['listMex'] = $return['listMex'][count($return['listMex']) - 1];
         }
-        $return['listMex'] = array_chunk($return['listMex'],$limit);
-        $return['listMex'] = $return['listMex'][count($return['listMex']) - 1];
         return $return;
     }
 

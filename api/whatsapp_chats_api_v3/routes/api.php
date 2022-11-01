@@ -43,7 +43,7 @@ Route::group(['prefix' => 'chats'], function () use ($router) {
     Route::get("listChats", [ChatsController::class, 'listChats'])->name("list_all_chats");
     Route::get("allCountChat", [ChatsController::class, 'allCountChat'])->name("countAllChat");
     Route::post("updateChatsInfo", [ChatsController::class, 'updateChatsInfo'])->name("update_info_chats");
-    Route::get("getChatsInfo/{chatId}", [ChatsController::class, 'getChatsInfo'])->name("getChatsInfo");
+    Route::get("getChatsInfo/{chatId}/{limit?}/{onlyInfo?}", [ChatsController::class, 'getChatsInfo'])->name("getChatsInfo");
 });
 Route::group(['prefix' => "response"], function () use ($router) {
     Route::get("getListMessages", [ResponseMessageController::class, 'getListMessages'])->name('list_messages_to_send');
