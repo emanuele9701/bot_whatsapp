@@ -12,6 +12,8 @@ class ChatInfo extends Model
 
 
     protected $table = "chatinfo";
+    protected $primaryKey = 'chat_id';
+
 
     public static function findByChatId($chatId) {
         return DB::table('chatinfo','cInfo')->where('chat_id','=',$chatId);

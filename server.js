@@ -2,21 +2,26 @@ const { Client, Location, List, Buttons, LocalAuth, Message } = require('./node_
 
 const url = "http://localhost/bot_whatsapp/api/whatsapp_chats_api_v3/public/index.php/api";
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
-
+const axios = require("axios/index.js");
+const fs = require("fs");
 const extraFunctions = require('./functions');
-const { request } = require('http');
+const QRCode = require('qrcode')
+
 
 const client = new Client({
     authStrategy: new LocalAuth(),
-    puppeteer: { headless: false }
+    // puppeteer: { headless: false }
 });
 
 var listChatsMessage = new Array();
 
 client.initialize();
 
-client.on('qr', (qr) => {
-    console.log('QR RECEIVED', qr);
+client.on('qr', async(qr) => {
+    console.log('QR RECEIVED');
+    QRCode.toString(qr, { type: 'terminal' }, function(err, url) {
+        console.log(url)
+    })
 });
 
 client.on('authenticated', () => {
@@ -30,16 +35,18 @@ client.on('ready', async c => {
     chats = await client.getChats();
     console.log("Trovate " + chats.length + " chat");
     extraFunctions.sincronizza_chat(chats);
-    console.log("Scarico immagini");
-    extraFunctions.downloadImages(chats);
+    extraFunctions.sendInfoChat(chats);
+    // console.log("Scarico immagini");
+    // extraFunctions.downloadImages(chats);
 });
 
 client.on('message_create', async msg => {
-    if (!msg.fromMe) {
+    console.log("message_create");
+    if (msg.fromMe) {
         const chat = await msg.getChat();
         console.log("Creato messaggio per: " + chat.name);
         if (!chat.isGroup) {
-            //extraFunctions.salvaMessaggio(msg);
+            extraFunctions.salvaMessaggio(msg);
         }
     }
 });

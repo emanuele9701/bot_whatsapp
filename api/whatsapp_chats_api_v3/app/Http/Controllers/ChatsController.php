@@ -140,8 +140,10 @@ class ChatsController extends BaseController
             $existChat = Chat::findForChatsId($info_chat['chat_id']);
             if ($existChat) {
                 $existInfo = ChatInfo::findByChatId($existChat['id']);
+                
             } else {
                 $existInfo = -1;
+                
             }
             
             if (!empty($existChat) && $existInfo->count() == 0) {
@@ -157,11 +159,13 @@ class ChatsController extends BaseController
                     }
                 }
                 $chat_info->save();
-                $return[] = ['chat_id' => $chat_info['chat_id'], 'info_id' => $chat_info->id];
             } else {
-                $return[] = ['error' => true, 'chat_id' => $info_chat['chat_id']];
+                $cid = $info_chat['chat_id'];
+                unset($info_chat['chat_id']);
+                $info_chat['contatto_id'] = $info_chat['contatto_id']['_serialized'];
+                $chat_info = ChatInfo::where('contatto_id',$cid)->update($info_chat);
             }
         }
-        return $return;
+        return ['esito' => true];
     }
 }
