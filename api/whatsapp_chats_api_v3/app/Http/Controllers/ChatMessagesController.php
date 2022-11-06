@@ -193,6 +193,10 @@ class ChatMessagesController extends Controller
                     $imageName = uniqid() . ".ogg";
                     $type = "audio";
                     break;
+                case 'video':
+                    $imageName = uniqid() . ".mp4";
+                    $type = "video";
+                    break;
             }
         }
 

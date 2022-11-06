@@ -10,7 +10,7 @@ const QRCode = require('qrcode')
 
 const client = new Client({
     authStrategy: new LocalAuth(),
-    // puppeteer: { headless: false }
+    puppeteer: { headless: false }
 });
 
 var listChatsMessage = new Array();
