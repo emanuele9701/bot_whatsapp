@@ -3,6 +3,7 @@
 use App\Http\Controllers\ChatMessagesController;
 use App\Http\Controllers\ChatsController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\ReactionController;
 use App\Http\Controllers\ResponseMessageController;
 use App\Http\Middleware\LogActivity;
 use App\Http\Middleware\LogRoute;
@@ -37,6 +38,7 @@ Route::group(['prefix' => 'chats'], function () use ($router) {
         Route::get('all/{idChat}', [ChatMessagesController::class, 'all']);
         Route::post('saveMediaMessage', [ChatMessagesController::class, 'saveMessageImage']);
         Route::get("listMessages/{id_chat?}", [ChatMessagesController::class, 'listMessages'])->name("list_all_messages");
+        Route::post("setRead",[ChatMessagesController::class, 'setReadMessage'])->name("set_read_message");
     });
     Route::get('search/{what?}', [ChatsController::class, 'search_chat'])->name('search_chat');
     Route::post('renameChats', [ChatsController::class, 'renameChats'])->name('rinomina_chat');
@@ -44,6 +46,9 @@ Route::group(['prefix' => 'chats'], function () use ($router) {
     Route::get("allCountChat", [ChatsController::class, 'allCountChat'])->name("countAllChat");
     Route::post("updateChatsInfo", [ChatsController::class, 'updateChatsInfo'])->name("update_info_chats");
     Route::get("getChatsInfo/{chatId}/{limit?}/{onlyInfo?}", [ChatsController::class, 'getChatsInfo'])->name("getChatsInfo");
+});
+Route::group(['prefix' => "reactions"], function () use ($router) {
+    Route::post("newReaction", [ReactionController::class, 'newReaction'])->name('new_reaction');
 });
 Route::group(['prefix' => "response"], function () use ($router) {
     Route::get("getListMessages", [ResponseMessageController::class, 'getListMessages'])->name('list_messages_to_send');

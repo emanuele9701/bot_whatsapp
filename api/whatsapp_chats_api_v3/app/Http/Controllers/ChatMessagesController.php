@@ -74,7 +74,9 @@ class ChatMessagesController extends Controller
             // var_dump($probMex);die;
             if (!$probMex) {
                 Message::insert($messages);
-                Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
+                if($messages['fromMe'] == false) {
+                    Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
+                }
                 if ($messages['fromMe'] == false) {
                     @ChatMessagesController::evtNewMessage("messages", $strEvt, ['chatId' => $idChat[0]->id]);
                     @ChatMessagesController::evtNewMessage("messages", "App\Events\NewMessage");
@@ -90,8 +92,8 @@ class ChatMessagesController extends Controller
                 $probMex = Message::findForMessageId($message['message_id']);
                 if (!$probMex) {
                     Message::insert($message);
-                    Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
                     if ($message['fromMe'] == false) {
+                        Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
                         @ChatMessagesController::evtNewMessage("messages", $strEvt, ['chatId' => $idChat[0]->id]);
                         @ChatMessagesController::evtNewMessage("messages", "App\Events\NewMessage");
                     }
@@ -129,17 +131,10 @@ class ChatMessagesController extends Controller
             return ['esito' => false, 'msg' => 'No message!'];
         }
         foreach ($messages as $mex) {
-
-            if (isset($mex['fromMe'])) {
-                $probMex = Message::findForMessageId($mex['message_id']);
-                if (!$probMex) {
-                    Message::insert($mex);
-                    Chat::updateFromChatId($mex['chats_id'], ['hasNewMex' => 1]);
-                }
-            } else {
-                $probMex = Message::findForMessageId($mex['message_id']);
-                if (!$probMex) {
-                    Message::insert($mex);
+            $probMex = Message::findForMessageId($mex['message_id']);
+            if (!$probMex) {
+                Message::insert($mex);
+                if ($mex['fromMe'] == false) {
                     Chat::updateFromChatId($mex['chats_id'], ['hasNewMex' => 1]);
                 }
             }
@@ -155,6 +150,20 @@ class ChatMessagesController extends Controller
     {
         $idMessaggi = Message::getImageMessages();
         return $idMessaggi;
+    }
+
+    public function setReadMessage(Request $request)
+    {
+        $idMessaggio = $request->input("message_id");
+
+        $findMex = Message::where("message_id", $idMessaggio)->count() > 0 ? true : false;
+
+        if ($findMex) {
+            Message::where("message_id", $idMessaggio)->update(['read' => 1, 'hasNewMex' => 0]);
+            return ['esito' => true];
+        }
+
+        return ['esito' => false];
     }
 
     public function saveMessageImage(Request $request)

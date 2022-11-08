@@ -10,7 +10,7 @@ const QRCode = require('qrcode')
 
 const client = new Client({
     authStrategy: new LocalAuth(),
-    puppeteer: { headless: false }
+    // puppeteer: { headless: false }
 });
 
 var listChatsMessage = new Array();
@@ -30,14 +30,33 @@ client.on('authenticated', () => {
 
 var chats = new Array();
 
+client.on('message_ack', async (msg) => {
+    var idmex = msg.id._serialized;
+    var ack = msg.ack;
+    if(ack == 3) {
+        // Letto
+        await extraFunctions.request(url + "/chats/messages/setRead",{message_id: idmex}).then(function (esito) {
+            console.log("Set Read Successo");
+        }).catch(function (error) {
+            console.log("Set Read Error");
+            console.log(error);
+        });
+    }
+});
+
+client.on('message_reaction', async (reaction) => {
+    console.log("Reazione");
+    extraFunctions.salvaReazione(reaction);
+})
+
 client.on('ready', async c => {
     waitForMessage();
     chats = await client.getChats();
     console.log("Trovate " + chats.length + " chat");
     extraFunctions.sincronizza_chat(chats);
     extraFunctions.sendInfoChat(chats);
-    // console.log("Scarico immagini");
-    // extraFunctions.downloadImages(chats);
+    console.log("Scarico immagini");
+    extraFunctions.downloadImages(chats);
 });
 
 client.on('message_create', async msg => {

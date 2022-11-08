@@ -101,6 +101,21 @@ async function flagSendMex(mex_id, id_mex_saved) {
     return response;
 }
 
+async function salvaReazione(reazione) {
+    var toSend = Buffer.from(JSON.stringify({
+        reaction_id: reazione.id._serialized,
+        message_id: reazione.msgId._serialized,
+        reaction: reazione.reaction,
+        reaction_time: reazione.timestamp*1000
+    }));
+    var toSendBase64 = toSend.toString('base64');
+    await request(url + "/reactions/newReaction", { data: toSendBase64 }).then(function(result) {
+        writeSuccessLog("Salvata reazione correttamente");
+    }).catch(function(error) {
+        writeErrorLog("Errore salvataggio reazione");
+    });
+}
+
 async function sincronizza_chat(chats) {
 
     var listChats = new Array();
@@ -196,7 +211,7 @@ async function downloadImages(chats) {
             if (messaggio.id._serialized == id.message_id) {
                 writeSuccessLog("Trovato, scarico i media");
                 var media = await messaggio.downloadMedia();
-                if(media != undefined) {
+                if (media != undefined) {
                     mediaSend.push({
                         chats_id: id.chats_id,
                         messageId: id.message_id,
@@ -208,7 +223,7 @@ async function downloadImages(chats) {
                 }
             }
         }
-        if(!trovato) {
+        if (!trovato) {
             mediaNonTrovati.push(id.message_id);
         }
     }
@@ -219,7 +234,7 @@ async function downloadImages(chats) {
         for (let index = 0; index < mediaSend.length; index++) {
             const element = mediaSend[index];
             toSend.push(element);
-            if(((index+1) % 50) == 0) {
+            if (((index + 1) % 50) == 0) {
                 var json = Buffer.from(JSON.stringify(toSend));
                 await request(url + '/chats/messages/saveMediaMessage', { data: json.toString('base64') }).then(function(succes) {
                     writeSuccessLog("Inviati con successo!");
@@ -229,7 +244,7 @@ async function downloadImages(chats) {
                 toSend = new Array();
             }
         }
-        if(toSend.length > 0) {
+        if (toSend.length > 0) {
             var json = Buffer.from(JSON.stringify(toSend));
             await request(url + '/chats/messages/saveMediaMessage', { data: json.toString('base64') }).then(function(succes) {
                 writeSuccessLog("Inviati con successo!");
@@ -237,7 +252,7 @@ async function downloadImages(chats) {
                 writeErrorLog("Errore nell'invio. " + error);
             });
         }
-        
+
     }
 
 }
@@ -297,7 +312,7 @@ async function salvaMessaggio(msg) {
         }
     }
     return !error;
-}   
+}
 
 function getDateitalianFormat() {
     var date = new Date();
@@ -345,4 +360,4 @@ function getRandomNum() {
     return Math.floor(Math.random() * 1000);
 }
 
-module.exports = { renameChat, request, sincronizza_chat, sendInfoChat, downloadImages, salvaMessaggio, flagSendMex, getMessagesToSend, inviaMessaggio };
+module.exports = { renameChat, request, salvaReazione, sincronizza_chat, sendInfoChat, downloadImages, salvaMessaggio, flagSendMex, getMessagesToSend, inviaMessaggio };
