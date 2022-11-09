@@ -77,7 +77,7 @@ class ChatsController extends BaseController
 
         if ($onlyInfo == false) {
 
-            $allMexForChat = DB::table('chats')->join('chat_messages', 'chats.chats_id', '=', 'chat_messages.chats_id')->leftJoin("media_messages", 'media_messages.id', '=', 'chat_messages.mediaFile')->where('chats.id', '=', $chatId)->get(['body', 'fromMe', 'mediaFile', 'media_messages.name as nome_immagine', 'media_messages.type', 'chat_messages.timestamp_message'])->toArray();
+            $allMexForChat = DB::table('chats')->join('chat_messages', 'chats.chats_id', '=', 'chat_messages.chats_id')->leftJoin("media_messages", 'media_messages.id', '=', 'chat_messages.mediaFile')->where('chats.id', '=', $chatId)->get(['body', 'fromMe', 'mediaFile', 'media_messages.name as nome_immagine', 'media_messages.type', 'chat_messages.timestamp_message','chat_messages.hasNewMex','chat_messages.read'])->toArray();
         }
 
         if (!empty($infoChat)) {
@@ -109,6 +109,8 @@ class ChatsController extends BaseController
                 $messaggio['fromMe'] = $mex->fromMe;
                 $messaggio['mediaFile'] = $mex->mediaFile;
                 $messaggio['timestamp_message'] = $mex->timestamp_message;
+                $messaggio['hasNewMex'] = $mex->hasNewMex;
+                $messaggio['read'] = $mex->read;
                 $messaggio['mittente'] = $return['name'];
                 $media = null;
                 if (is_numeric($mex->mediaFile) && $mex->mediaFile > 0 && Storage::disk('local2')->exists($allMexForChat[$key]->nome_immagine)) {

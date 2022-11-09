@@ -36,7 +36,7 @@ return [
         ],
         'local2' => [
             'driver' => 'local',
-            'root' => "C:\wamp64_1\www\disk_ext",
+            'root' => "D:\Progetti\Storage_Progetti",
         ],
 
         'public' => [
