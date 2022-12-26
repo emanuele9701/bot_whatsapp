@@ -32,7 +32,7 @@ Route::prefix('home')->group(function () {
 
 Route::prefix('test')->group(function () {
     Route::get("test",function () {
-        var_dump(glob(storage_path("app")."/public"));
+        var_dump(glob(storage_path("app")."/public/*"));
         die;
     });
 
