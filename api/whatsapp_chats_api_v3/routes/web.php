@@ -32,7 +32,7 @@ Route::prefix('home')->group(function () {
 
 Route::prefix('test')->group(function () {
     Route::get("test",function () {
-        echo storage_path("app");
+        echo storage_path("app")."/public";
     });
 
     Route::get('pusher', function () {
