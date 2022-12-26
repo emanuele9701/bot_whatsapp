@@ -32,7 +32,7 @@ Route::prefix('home')->group(function () {
 
 Route::prefix('test')->group(function () {
     Route::get("test",function () {
-        file_put_contents(storage_path("app")."/public/pippo_correttamente.txt","Ciao");
+        echo exec("whoami");
         die;
     });
 
