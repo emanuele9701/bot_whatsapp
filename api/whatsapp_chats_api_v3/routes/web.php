@@ -32,7 +32,7 @@ Route::prefix('home')->group(function () {
 
 Route::prefix('test')->group(function () {
     Route::get("test",function () {
-        echo Storage::disk('local2');
+        echo storage_path("app");
     });
 
     Route::get('pusher', function () {
