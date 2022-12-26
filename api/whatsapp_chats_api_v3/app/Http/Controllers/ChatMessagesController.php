@@ -74,7 +74,7 @@ class ChatMessagesController extends Controller
             // var_dump($probMex);die;
             if (!$probMex) {
                 Message::insert($messages);
-                if($messages['fromMe'] == false) {
+                if ($messages['fromMe'] == false) {
                     Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
                 }
                 if ($messages['fromMe'] == false) {
@@ -169,60 +169,62 @@ class ChatMessagesController extends Controller
     public function saveMessageImage(Request $request)
     {
         // $bs64dc = explode("}]", base64_decode($request->input('data')))[0] . "}]";
-        $imagesMessages = json_decode(base64_decode($request->input('data')), true);
+        $imagesMessagess = json_decode(base64_decode($request->input('data')), true);
+        foreach ($imagesMessagess as $key => $imagesMessages) {
+            $message_id = $imagesMessages['messageId']; // Messaggio a cui agganciare l'immagine
+            $bs64img = $imagesMessages['base64data'];
+            $mime = $imagesMessages['mime'];
+            // $chats_id = $imagesMessages[0]['chats_id']; // Chat a cui agganciare 
+            $messaggioCercato = MediaMessage::findFromMessageId($message_id);
+            if (!empty($messaggioCercato)) {
+                return response()->json(['esito' => false, 'msg' => "Nessun messaggio a cui agganciarsi"]);
+            }
+            $findChat = DB::table("chat_messages")->join('chats', 'chats.chats_id', '=', 'chat_messages.chats_id')->where("chat_messages.message_id", '=', $message_id)->get(['chat_messages.*', 'chats.id as idChat'])->toArray();
+            $chats_id = null;
+            if (!empty($findChat)) {
+                $chats_id = $findChat[0]->chats_id;
+            }
 
-        $message_id = $imagesMessages['messageId']; // Messaggio a cui agganciare l'immagine
-        $bs64img = $imagesMessages['base64data'];
-        $mime = $imagesMessages['mime'];
-        // $chats_id = $imagesMessages[0]['chats_id']; // Chat a cui agganciare 
-        $messaggioCercato = MediaMessage::findFromMessageId($message_id);
-        if (!empty($messaggioCercato)) {
-            return response()->json(['esito' => false, 'msg' => "Nessun messaggio a cui agganciarsi"]);
-        }
-        $findChat = DB::table("chat_messages")->join('chats', 'chats.chats_id', '=', 'chat_messages.chats_id')->where("chat_messages.message_id", '=', $message_id)->get(['chat_messages.*', 'chats.id as idChat'])->toArray();
-        $chats_id = null;
-        if (!empty($findChat)) {
-            $chats_id = $findChat[0]->chats_id;
-        }
+            if ($chats_id == null) {
+                return response(json_encode(['esito' => false, 'msg' => "Chat non trovata"]), 500, ['Content-Type' => 'application/json']);
+            }
+            // Recupero tipo di media
+            $mimeToType = DB::table("conv_media_type")->where("mime", '=', $mime)->get(['mime', 'type']);
+            $imageName = "";
+            $type = "";
+            if (!empty($mimeToType)) {
+                switch ($mimeToType[0]->type) {
+                    case 'image':
+                        $imageName = uniqid() . ".jpeg";
+                        $type = "image";
+                        break;
+                    case 'audio':
+                        $imageName = uniqid() . ".ogg";
+                        $type = "audio";
+                        break;
+                    case 'video':
+                        $imageName = uniqid() . ".mp4";
+                        $type = "video";
+                        break;
+                }
+            }
 
-        if ($chats_id == null) {
-            return response(json_encode(['esito' => false, 'msg' => "Chat non trovata"]), 500, ['Content-Type' => 'application/json']);
-        }
-        // Recupero tipo di media
-        $mimeToType = DB::table("conv_media_type")->where("mime", '=', $mime)->get(['mime', 'type']);
-        $imageName = "";
-        $type = "";
-        if (!empty($mimeToType)) {
-            switch ($mimeToType[0]->type) {
-                case 'image':
-                    $imageName = uniqid() . ".jpeg";
-                    $type = "image";
-                    break;
-                case 'audio':
-                    $imageName = uniqid() . ".ogg";
-                    $type = "audio";
-                    break;
-                case 'video':
-                    $imageName = uniqid() . ".mp4";
-                    $type = "video";
-                    break;
+
+            if (Storage::disk('local2')->put($imageName, base64_decode($bs64img))) {
+                $media = new MediaMessage();
+                $media->name = $imageName;
+                $media->message_id = $message_id;
+                $media->chats_id = $chats_id;
+                $media->type = $type;
+                $media->save();
+
+                Message::where('message_id', $message_id)->update(['mediaFile' => $media->id, 'hasMedia' => false]);
+                $strEvt = "App\Events\NewMessage_" . $findChat[0]->idChat;
+                ChatMessagesController::evtNewMessage("messages", $strEvt, ['chatId' => $findChat[0]->idChat]);
+                ChatMessagesController::evtNewMessage("messages", "App\Events\NewMessage");
             }
         }
 
-
-        if (Storage::disk('local2')->put($imageName, base64_decode($bs64img))) {
-            $media = new MediaMessage();
-            $media->name = $imageName;
-            $media->message_id = $message_id;
-            $media->chats_id = $chats_id;
-            $media->type = $type;
-            $media->save();
-
-            Message::where('message_id', $message_id)->update(['mediaFile' => $media->id, 'hasMedia' => false]);
-            $strEvt = "App\Events\NewMessage_" . $findChat[0]->idChat;
-            ChatMessagesController::evtNewMessage("messages", $strEvt, ['chatId' => $findChat[0]->idChat]);
-            ChatMessagesController::evtNewMessage("messages", "App\Events\NewMessage");
-        }
         return ['esito' => true];
     }
 }

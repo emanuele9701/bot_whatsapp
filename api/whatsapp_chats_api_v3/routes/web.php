@@ -8,6 +8,8 @@ use App\Http\Controllers\ChatsController;
 use App\Models\Chat;
 use App\Models\Message;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -29,6 +31,10 @@ Route::prefix('home')->group(function () {
 });
 
 Route::prefix('test')->group(function () {
+    Route::get("test",function () {
+        echo Storage::disk('local2');
+    });
+
     Route::get('pusher', function () {
         ChatMessagesController::evtNewMessage("messages","App\Events\NewMessage_1254",['chatId' => 1254]);
         return "Event has been sent!";

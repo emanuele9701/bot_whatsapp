@@ -235,7 +235,7 @@ async function downloadImages(chats) {
             const element = mediaSend[index];
             toSend.push(element);
             if (((index + 1) % 50) == 0) {
-                var json = Buffer.from(JSON.stringify(toSend));
+                var json =  Buffer.from(JSON.stringify(toSend));
                 await request(url + '/chats/messages/saveMediaMessage', { data: json.toString('base64') }).then(function(succes) {
                     writeSuccessLog("Inviati con successo!");
                 }).catch(function(error) {
