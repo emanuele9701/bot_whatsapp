@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -150,7 +151,11 @@ class Chat extends Model
             $mx[$key]->stream = null;
             if ($mx[$key]->nome_immagine != null) {
                 $mx[$key]->nome_immagine = $mx[$key]->nome_immagine;
-                $mx[$key]->stream = base64_encode(Storage::disk('local2')->get($mx[$key]->nome_immagine));
+                try {
+                   $mx[$key]->stream = base64_encode(Storage::disk('local2')->get($mx[$key]->nome_immagine));
+                } catch (FileNotFoundException $ex) {
+                    $mx[$key]->stream = null;
+                }
             }
             Message::where("id", $m->id)->update(['hasNewMex' => 0]);
         }
