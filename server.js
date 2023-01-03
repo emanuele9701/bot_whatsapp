@@ -6,13 +6,13 @@ const axios = require("axios/index.js");
 const fs = require("fs");
 const extraFunctions = require('./functions');
 const QRCode = require('qrcode')
-
+console.log('init');
 
 const client = new Client({
     authStrategy: new LocalAuth(),
     // puppeteer: { headless: false }
 });
-
+console.log("lets go")
 var listChatsMessage = new Array();
 
 client.initialize();

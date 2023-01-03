@@ -8,6 +8,7 @@ use App\Models\MediaMessage;
 use App\Models\Message;
 use App\Models\Response;
 use Illuminate\Http\Request;
+use Illuminate\Log\Logger;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -77,7 +78,7 @@ class ChatMessagesController extends Controller
                 if ($messages['fromMe'] == false) {
                     Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
                 }
-                if ($messages['fromMe'] == false) {
+                if ($messages['fromMe'] == false) {                    
                     @ChatMessagesController::evtNewMessage("messages", $strEvt, ['chatId' => $idChat[0]->id]);
                     @ChatMessagesController::evtNewMessage("messages", "App\Events\NewMessage");
                 }
@@ -96,6 +97,7 @@ class ChatMessagesController extends Controller
                         Chat::updateFromChatId($messages['chats_id'], ['hasNewMex' => 1]);
                         @ChatMessagesController::evtNewMessage("messages", $strEvt, ['chatId' => $idChat[0]->id]);
                         @ChatMessagesController::evtNewMessage("messages", "App\Events\NewMessage");
+                        // @ChatMessagesController::evtNewMessage("messages", "pippo");
                     }
                 }
             }
@@ -169,7 +171,7 @@ class ChatMessagesController extends Controller
     public function saveMessageImage(Request $request)
     {
         // $bs64dc = explode("}]", base64_decode($request->input('data')))[0] . "}]";
-        $imagesMessagess = json_decode(base64_decode($request->input('data')), true);
+        $imagesMessagess[] = json_decode(base64_decode($request->input('data')), true);
         foreach ($imagesMessagess as $key => $imagesMessages) {
             $message_id = $imagesMessages['messageId']; // Messaggio a cui agganciare l'immagine
             $bs64img = $imagesMessages['base64data'];
@@ -220,8 +222,8 @@ class ChatMessagesController extends Controller
 
                 Message::where('message_id', $message_id)->update(['mediaFile' => $media->id, 'hasMedia' => false]);
                 $strEvt = "App\Events\NewMessage_" . $findChat[0]->idChat;
-                ChatMessagesController::evtNewMessage("messages", $strEvt, ['chatId' => $findChat[0]->idChat]);
-                ChatMessagesController::evtNewMessage("messages", "App\Events\NewMessage");
+                @ChatMessagesController::evtNewMessage("messages", $strEvt, ['chatId' => $findChat[0]->idChat]);
+                @ChatMessagesController::evtNewMessage("messages", "App\Events\NewMessage");
             }
         }
 

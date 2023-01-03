@@ -73,12 +73,14 @@ class ChatsController extends BaseController
     public function getChatsInfo($chatId, $limit = 35, $onlyInfo = false)
     {
         $return = [];
-        $infoChat = DB::table('chats')->leftJoin('chatinfo', 'chats.id', '=', 'chatinfo.chat_id')->where('chats.id', '=', $chatId)->get(['chats.name as name_chat', 'chatinfo.name as name_info', 'chats.updated_at as lastUpdate', 'numero_formattato', 'url_image', 'chats.id as idChat', 'chatinfo.haveWhatsApp', 'chatinfo.isBlocked','chatinfo.about'])->toArray();
+        $infoChat = DB::table('chats')->leftJoin('chatinfo', 'chats.id', '=', 'chatinfo.chat_id')->where('chats.id', '=', $chatId)->get(['chats.name as name_chat', 'chatinfo.name as name_info', 'chats.updated_at as lastUpdate', 'numero_formattato', 'url_image', 'chats.id as idChat', 'chatinfo.haveWhatsApp', 'chatinfo.isBlocked', 'chatinfo.about'])->toArray();
 
         if ($onlyInfo == false) {
 
-            $allMexForChat = DB::table('chats')->join('chat_messages', 'chats.chats_id', '=', 'chat_messages.chats_id')->leftJoin("media_messages", 'media_messages.id', '=', 'chat_messages.mediaFile')->where('chats.id', '=', $chatId)->get(['body', 'fromMe', 'mediaFile', 'media_messages.name as nome_immagine', 'media_messages.type', 'chat_messages.timestamp_message','chat_messages.hasNewMex','chat_messages.read'])->toArray();
+            $allMexForChat = DB::table('chats')->join('chat_messages', 'chats.chats_id', '=', 'chat_messages.chats_id')->leftJoin("media_messages", 'media_messages.id', '=', 'chat_messages.mediaFile')->where('chats.id', '=', $chatId)->get(['body', 'fromMe', 'mediaFile', 'media_messages.name as nome_immagine', 'media_messages.type', 'chat_messages.timestamp_message', 'chat_messages.hasNewMex', 'chat_messages.read'])->toArray();
         }
+
+        DB::table('chat_messages')->join('chats', 'chats.chats_id', '=', 'chat_messages.chats_id')->where('chats.id', '=', $chatId)->update(['chat_messages.hasNewMex' => 0, 'chats.hasNewMex' => 0]);
 
         if (!empty($infoChat)) {
             $return = [
