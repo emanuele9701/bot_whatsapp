@@ -1,6 +1,6 @@
 const { Client, Location, List, Buttons, LocalAuth, Message } = require('./node_modules/whatsapp-web.js/index');
 
-const url = "http://localhost/bot_whatsapp/api/whatsapp_chats_api_v3/public/index.php/api";
+const url = "http://127.0.0.1:8080/bot_whatsapp/api/whatsapp_chats_api_v3/public/index.php/api";
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 const axios = require("axios/index.js");
 const fs = require("fs");
@@ -26,6 +26,7 @@ client.on('qr', async(qr) => {
 
 client.on('authenticated', () => {
     console.log('AUTHENTICATED');
+    console.log(LocalAuth);
 });
 
 var chats = new Array();
@@ -53,11 +54,19 @@ client.on('ready', async c => {
     waitForMessage();
     chats = await client.getChats();
     console.log("Trovate " + chats.length + " chat");
-    extraFunctions.sincronizza_chat(chats);
-    extraFunctions.sendInfoChat(chats);
-    console.log("Scarico immagini");
+    for (let index = 0; index < chats.length; index++) {
+        const element = chats[index];
+        const contact = await element.getContact();
+        if(contact.isBlocked == true) {
+            console.log(contact.number + " blocked");
+        }
+    }
     extraFunctions.downloadImages(chats);
+    extraFunctions.sendInfoChat(chats);
+    extraFunctions.sincronizza_chat(chats);
+    return;
 });
+
 
 client.on('message_create', async msg => {
     console.log("message_create");

@@ -1,5 +1,7 @@
-const url = "http://localhost/bot_whatsapp/api/whatsapp_chats_api_v3/public/index.php/api";
+const url = "http://127.0.0.1:8080/bot_whatsapp/api/whatsapp_chats_api_v3/public/index.php/api";
 const axios = require("axios/index.js");
+const rateLimit = require('axios-rate-limit');
+const limitedAxios = rateLimit(axios.create(), { maxRequests: 10, perMilliseconds: 15000 });
 const fs = require('fs');
 const { Client } = require("whatsapp-web.js");
 var justCalled = false;
@@ -12,14 +14,21 @@ async function request(url_request, data_post = {}, method = 'post') {
         params.append(key, value);
     });
 
-    var result = await axios({
-        method: method,
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
-        // url: "https://gmapsextractor.altervista.org/bot_whatsapp/api/api.php?a=" + request,
-        url: url_request,
-        data: params,
-    })
+    var result = await limitedAxios.post(url_request, params)
+        .then(response => {
+            return response.data;
+        })
+        .catch(error => {
+            return error.response;
+        });
+    // var result = await axios({
+    //     method: method,
+    //     maxContentLength: Infinity,
+    //     maxBodyLength: Infinity,
+    //     // url: "https://gmapsextractor.altervista.org/bot_whatsapp/api/api.php?a=" + request,
+    //     url: url_request,
+    //     data: params,
+    // })
     return result;
 }
 
@@ -106,7 +115,7 @@ async function salvaReazione(reazione) {
         reaction_id: reazione.id._serialized,
         message_id: reazione.msgId._serialized,
         reaction: reazione.reaction,
-        reaction_time: reazione.timestamp*1000
+        reaction_time: reazione.timestamp * 1000
     }));
     var toSendBase64 = toSend.toString('base64');
     await request(url + "/reactions/newReaction", { data: toSendBase64 }).then(function(result) {
@@ -235,7 +244,7 @@ async function downloadImages(chats) {
             const element = mediaSend[index];
             toSend.push(element);
             if (((index + 1) % 50) == 0) {
-                var json =  Buffer.from(JSON.stringify(toSend));
+                var json = Buffer.from(JSON.stringify(toSend));
                 await request(url + '/chats/messages/saveMediaMessage', { data: json.toString('base64') }).then(function(succes) {
                     writeSuccessLog("Inviati con successo!");
                 }).catch(function(error) {
@@ -337,14 +346,14 @@ function getChatById(idChat, chats) {
 }
 
 async function writeErrorLog(stringa) {
-    console.log("ERRORE: " + stringa);
+    // console.log("ERRORE: " + stringa);
     fs.appendFileSync('error.log', stringa + "\n", function(err) {
         if (err) return console.log(err);
     });
 }
 
 async function writeSuccessLog(stringa) {
-    console.log("SUCCESSO: " + stringa);
+    // console.log("SUCCESSO: " + stringa);
     fs.appendFileSync('success.log', stringa + "\n", function(err) {
         if (err) return console.log(err);
     });
