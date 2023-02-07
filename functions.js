@@ -14,13 +14,24 @@ async function request(url_request, data_post = {}, method = 'post') {
         params.append(key, value);
     });
 
-    var result = await limitedAxios.post(url_request, params)
+    if(method == 'post') {
+
+        var result = await limitedAxios.post(url_request, params)
         .then(response => {
             return response.data;
         })
         .catch(error => {
             return error.response;
         });
+    } else {
+        var result = await limitedAxios.get(url_request, params)
+        .then(response => {
+            return response.data;
+        })
+        .catch(error => {
+            return error.response;
+        });
+    }
     // var result = await axios({
     //     method: method,
     //     maxContentLength: Infinity,

@@ -26,38 +26,40 @@ client.on('qr', async(qr) => {
 
 client.on('authenticated', () => {
     console.log('AUTHENTICATED');
-    console.log(LocalAuth);
 });
+
+
 
 var chats = new Array();
 
-client.on('message_ack', async (msg) => {
+client.on('message_ack', async(msg) => {
     var idmex = msg.id._serialized;
     var ack = msg.ack;
-    if(ack == 3) {
+    if (ack == 3) {
         // Letto
-        await extraFunctions.request(url + "/chats/messages/setRead",{message_id: idmex}).then(function (esito) {
+        await extraFunctions.request(url + "/chats/messages/setRead", { message_id: idmex }).then(function(esito) {
             console.log("Set Read Successo");
-        }).catch(function (error) {
+        }).catch(function(error) {
             console.log("Set Read Error");
             console.log(error);
         });
     }
 });
 
-client.on('message_reaction', async (reaction) => {
+client.on('message_reaction', async(reaction) => {
     console.log("Reazione");
     extraFunctions.salvaReazione(reaction);
 })
 
 client.on('ready', async c => {
-    waitForMessage();
+    recuperoListe();
+    return;
     chats = await client.getChats();
     console.log("Trovate " + chats.length + " chat");
     for (let index = 0; index < chats.length; index++) {
         const element = chats[index];
         const contact = await element.getContact();
-        if(contact.isBlocked == true) {
+        if (contact.isBlocked == true) {
             console.log(contact.number + " blocked");
         }
     }
@@ -67,6 +69,28 @@ client.on('ready', async c => {
     return;
 });
 
+async function recuperoListe() {
+    var list_message = await extraFunctions.request(url + '/list/list_to_send', {}, 'get');
+    console.log(list_message)
+    if (list_message.nLists > 0) {
+        var liste = list_message.dettaglio_liste;
+        for (let jdx = 0; jdx < liste.length; jdx++) {
+            const lista = liste[jdx];
+            var contatti = lista.contatti;
+            console.log("Nome lista: " + lista.lista);
+            for (let index = 0; index < contatti.length; index++) {
+                const contatto = contatti[index];
+                var id = await client.getNumberId(contatto.contatto_numero.replace("+39",""));
+                var chat = await client.getChatById(id._serialized);
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                var message = await chat.sendMessage("Non ti preoccupare, questo è un messaggio di test dal mio bot. Presto sarà pronto");
+                if(message instanceof Message) {
+                    // Invio segnale di invio effettuato alla lista
+                }
+            }
+        }
+    }
+}
 
 client.on('message_create', async msg => {
     console.log("message_create");
