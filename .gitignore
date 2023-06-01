@@ -25,3 +25,5 @@ api/whatsapp_chats_api_v3/storage/framework/views/*
 api\whatsapp_chats_api_v3\vendor
 api/whatsapp_chats_api_v3/.wwebjs_auth/*
 api/whatsapp_chats_api_v3/storage/logs/laravel.log
+.wwebjs_cache/*
+.wwebjs_auth/*
