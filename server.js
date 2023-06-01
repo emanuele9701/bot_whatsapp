@@ -1,6 +1,6 @@
 const { Client, Location, List, Buttons, LocalAuth, Message } = require('./node_modules/whatsapp-web.js/index');
 
-const url = "http://127.0.0.1:8080/bot_whatsapp/api/whatsapp_chats_api_v3/public/index.php/api";
+const url = "http://bot.whatsapp.local/api";
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 const axios = require("axios/index.js");
 const fs = require("fs");
@@ -80,11 +80,11 @@ async function recuperoListe() {
             console.log("Nome lista: " + lista.lista);
             for (let index = 0; index < contatti.length; index++) {
                 const contatto = contatti[index];
-                var id = await client.getNumberId(contatto.contatto_numero.replace("+39",""));
+                var id = await client.getNumberId(contatto.contatto_numero.replace("+39", ""));
                 var chat = await client.getChatById(id._serialized);
                 await new Promise(resolve => setTimeout(resolve, 2000));
                 var message = await chat.sendMessage("Non ti preoccupare, questo è un messaggio di test dal mio bot. Presto sarà pronto");
-                if(message instanceof Message) {
+                if (message instanceof Message) {
                     // Invio segnale di invio effettuato alla lista
                 }
             }

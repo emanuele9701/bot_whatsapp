@@ -1,4 +1,4 @@
-const url = "http://127.0.0.1:8080/bot_whatsapp/api/whatsapp_chats_api_v3/public/index.php/api";
+const url = "http://bot.whatsapp.local/api";
 const axios = require("axios/index.js");
 const rateLimit = require('axios-rate-limit');
 const limitedAxios = rateLimit(axios.create(), { maxRequests: 10, perMilliseconds: 15000 });
@@ -14,23 +14,23 @@ async function request(url_request, data_post = {}, method = 'post') {
         params.append(key, value);
     });
 
-    if(method == 'post') {
+    if (method == 'post') {
 
         var result = await limitedAxios.post(url_request, params)
-        .then(response => {
-            return response.data;
-        })
-        .catch(error => {
-            return error.response;
-        });
+            .then(response => {
+                return response.data;
+            })
+            .catch(error => {
+                return error.response;
+            });
     } else {
         var result = await limitedAxios.get(url_request, params)
-        .then(response => {
-            return response.data;
-        })
-        .catch(error => {
-            return error.response;
-        });
+            .then(response => {
+                return response.data;
+            })
+            .catch(error => {
+                return error.response;
+            });
     }
     // var result = await axios({
     //     method: method,
