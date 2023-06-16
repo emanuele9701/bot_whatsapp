@@ -10,7 +10,7 @@ console.log('init');
 
 const client = new Client({
     authStrategy: new LocalAuth(),
-    // puppeteer: { headless: false }
+    puppeteer: { headless: false }
 });
 console.log("lets go")
 var listChatsMessage = new Array();
@@ -52,8 +52,8 @@ client.on('message_reaction', async(reaction) => {
 })
 
 client.on('ready', async c => {
-    recuperoListe();
-    return;
+    // recuperoListe();
+    // return;
     chats = await client.getChats();
     console.log("Trovate " + chats.length + " chat");
     for (let index = 0; index < chats.length; index++) {
